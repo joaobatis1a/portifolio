@@ -8,7 +8,7 @@ import Contact from "./components/Contact";
 
 function App() {
     return(
-        <main className="bg-slate-950 tet-white">
+        <main className="bg-black text-white">
             <Hero />
             <About />
             <Skills />
