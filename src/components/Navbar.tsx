@@ -3,29 +3,30 @@ import { Link } from "react-scroll"
 
 function Navbar() {
     const [active, setActive] = useState("hero");
-    const [scrolled, setScrolled] = useState(false);
     const [visible, setVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
+    let timeout: ReturnType<typeof setTimeout>;
 
-            setScrolled(currentScrollY > 50);
+    const handleScroll = () => {
 
-            if ( currentScrollY > lastScrollY && currentScrollY > 100 ) {
-                setVisible(false)
-            } else {
-                setVisible(true)
-            }
+        setVisible(false);
 
-            setLastScrollY(currentScrollY);
-        };
+        clearTimeout(timeout);
 
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [lastScrollY]);
+        timeout = setTimeout(() => {
+            setVisible(true);
+        }, 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+        window.removeEventListener("scroll", handleScroll);
+        clearTimeout(timeout);
+    };
+}, []);
 
     useEffect(() => {
         const sections = document.querySelectorAll("section");
@@ -47,38 +48,86 @@ function Navbar() {
         return () => observer.disconnect(); 
     }, []);
 
-    const linkClass = (id: string) => 
-        active === id ? "text-cyan-400" : "text-white";
+    const linkClass = (id: string) =>
+    ` relative inline-block cursor-pointer transition-all duration-500
+
+    ${
+        active === id
+            ? ` text-cyan-300 after:w-full `
+            : ` text-white hover:text-cyan-300 after:w-0 hover:after:w-full `
+    }
+
+    after:absolute after:left-0 after:-bottom-1 after:h-[2px]
+
+    after:bg-gradient-to-r after:from-emerald-400 after:via-green-400 after:to-cyan-400
+
+    after:transition-all after:duration-500 `;
+
 
     return (
-         <nav
-            className={`
-                fixed top-0 w-full z-50 backdrop-blur border-b border-white/10 transition-all duration-300
-                ${scrolled ? "py-2 bg-zinc-900/90" : "py-4 bg-zinc-900/60"}
-                ${visible ? "translate-y-0" : "-translate-y-full"}
-            `}
-        >
-            <div className="flex items-center justify-between px-6 text-white">
+         <div
+    className={`
+        fixed top-4 left-0 w-full z-50 flex justify-center
+        transition-all duration-500
+        ${visible ? "translate-y-0" : "-translate-y-24"}
+    `}
+>
+    <nav
+        className={`
+            w-[95%]
+            max-w-6xl
 
-                {/* Logo */}
-                <div className={`font-bold transition-all duration-300 ${scrolled ? "text-base" : "text-xl"}`}>
-                    JoãoDev
+            py-4
+
+            rounded-full
+            border
+            border-white/10
+
+            backdrop-blur-md
+            bg-zinc-900/70
+
+            shadow-lg
+            shadow-cyan-500/10
+
+            transition-all
+            duration-500
+        `}
+    >
+            <div className="flex items-center justify-between px-20 text-white">
+
+                
+                <div className={`font-bold transition-all duration-300 text-xl md:text-2xl bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent`}>
+                    JOÃO BATISTA
                 </div>
 
-                {/* Desktop */}
-                <ul className="hidden md:flex gap-6 text-sm">
-                    <li><Link to="hero" smooth offset={-70} duration={500} className={linkClass("hero")}>Home</Link></li>
-                    <li><Link to="about" smooth offset={-70} duration={500} className={linkClass("about")}>About</Link></li>
-                    <li><Link to="skills" smooth offset={-70} duration={500} className={linkClass("skills")}>Skills</Link></li>
-                    <li><Link to="projects" smooth offset={-70} duration={500} className={linkClass("projects")}>Projects</Link></li>
-                    <li><Link to="training" smooth offset={-70} duration={500} className={linkClass("training")}>Training</Link></li>
-                    <li><Link to="experience" smooth offset={-70} duration={500} className={linkClass("experience")}>Experience</Link></li>
-                    <li><Link to="contact" smooth offset={-70} duration={500} className={linkClass("contact")}>Contact</Link></li>
+                
+                <ul className="hidden md:flex gap-6 text-sm ">
+                    <li><Link to="hero" smooth offset={-70} duration={500} 
+                    className={linkClass("hero")}
+                    >Início</Link></li>
+                    <li><Link to="about" smooth offset={-70} duration={500} 
+                    className={linkClass("about")}
+                    >Sobre</Link></li>
+                    <li><Link to="skills" smooth offset={-70} duration={500} 
+                    className={linkClass("skills")}
+                    >Habilidades</Link></li>
+                    <li><Link to="projects" smooth offset={-70} duration={500} 
+                    className={linkClass("projects")}
+                    >Projetos</Link></li>
+                    <li><Link to="training" smooth offset={-70} duration={500} 
+                    className={linkClass("training")}
+                    >Formação</Link></li>
+                    <li><Link to="experience" smooth offset={-70} duration={500} 
+                    className={linkClass("experience")}
+                    >Experiência</Link></li>
+                    <li><Link to="contact" smooth offset={-70} duration={500} 
+                    className={linkClass("contact")}
+                    >Contato</Link></li>
                 </ul>
 
                 {/* Mobile button */}
                 <button
-                    className="md:hidden text-2xl"
+                    className="md:hidden text-xl"
                     onClick={() => setOpen(!open)}
                 >
                     {open ? "✕" : "☰"}
@@ -98,6 +147,7 @@ function Navbar() {
                 </div>
             )}
         </nav>
+    </div>
     );
     
 }
