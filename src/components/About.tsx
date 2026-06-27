@@ -1,81 +1,164 @@
-function About() {
+import { useEffect, useState, useRef } from "react";
+
+const ITEMS = [
+    { key: "nome     ", value: "João Batista da Silva Neto" },
+    { key: "idade    ", value: "19 anos" },
+    { key: "local    ", value: "Paulista, PE 📍" },
+    { key: "curso    ", value: "ADS — Frassinetti do Recife" },
+    { key: "foco     ", value: "Front-End Development 💻" },
+    { key: "projetos ", value: "3 entregues · 2 premiados 🏆" },
+];
+
+const STEP_MS = 520;
+
+function Terminal() {
+    const [step, setStep] = useState(-1); // -1 = not started
+    const [pct, setPct] = useState(0);
+    const [showCursor, setShowCursor] = useState(true);
+    const ref = useRef<HTMLDivElement>(null);
+    const started = useRef(false);
+
+    // Intersection trigger
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !started.current) {
+                    started.current = true;
+                    setStep(0); // show "Inicializando..."
+                    ITEMS.forEach((_, i) => {
+                        setTimeout(() => {
+                            setStep(i + 1);
+                            setPct(Math.round(((i + 1) / ITEMS.length) * 100));
+                        }, (i + 1) * STEP_MS);
+                    });
+                    // final line
+                    setTimeout(() => setStep(ITEMS.length + 1), (ITEMS.length + 1) * STEP_MS);
+                }
+            },
+            { threshold: 0.25 }
+        );
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, []);
+
+    // Blinking cursor
+    useEffect(() => {
+        const id = setInterval(() => setShowCursor(c => !c), 530);
+        return () => clearInterval(id);
+    }, []);
+
+    const done = step > ITEMS.length;
+
     return (
-        <section
-            id="about"
-            className="relative min-h-screen flex items-center justify-center px-6 py-24"
-        >
-            {/* subtle nebula glow behind content */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ zIndex: 1 }}
-            >
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-cyan-500/5 blur-3xl" />
+        <div ref={ref} className="w-full font-mono text-xs">
+            {/* Title bar */}
+            <div className="flex items-center gap-2 bg-[#1a1a1a] rounded-t-lg px-3 py-2 border border-white/8">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                <span className="ml-2 text-[10px] text-zinc-500 tracking-wider">about.sh — bash</span>
             </div>
 
-            <div
-                className="relative z-10 max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center"
-            >
+            {/* Body */}
+            <div className="bg-[#0d0d0d] border border-t-0 border-white/8 rounded-b-lg px-4 py-4 min-h-[230px] leading-6">
+
+                {/* Init line */}
+                {step >= 0 && (
+                    <div className="text-zinc-500 mb-2">
+                        <span className="text-emerald-400">~/portfolio</span>
+                        <span className="text-zinc-600"> $ </span>
+                        <span>./about.sh</span>
+                    </div>
+                )}
+
+                {step >= 0 && (
+                    <div className="text-zinc-400 mb-3">&gt; Inicializando João Batista...</div>
+                )}
+
+                {/* Data items */}
+                {ITEMS.slice(0, Math.max(0, step)).map((item, i) => (
+                    <div key={i} className="flex gap-2 text-[11px]">
+                        <span className="text-cyan-500 select-none">✓</span>
+                        <span className="text-zinc-500">{item.key}</span>
+                        <span className="text-zinc-300">{item.value}</span>
+                    </div>
+                ))}
+
+                {/* Progress bar */}
+                {step >= 1 && (
+                    <div className="mt-3 flex items-center gap-2">
+                        <span className="text-zinc-600">[</span>
+                        <div className="flex-1 h-[6px] bg-zinc-800 rounded-full overflow-hidden">
+                            <div
+                                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                            />
+                        </div>
+                        <span className="text-zinc-600">]</span>
+                        <span className="text-cyan-400 w-8 text-right">{pct}%</span>
+                    </div>
+                )}
+
+                {/* Final line */}
+                {done && (
+                    <div className="mt-3 text-emerald-400">
+                        ✓ Build concluído. Pronto para colaborar!
+                    </div>
+                )}
+
+                {/* Cursor */}
+                {!done && step >= 0 && (
+                    <span className={`inline-block w-[7px] h-[13px] bg-cyan-400 ml-0.5 align-middle mt-1 ${showCursor ? "opacity-100" : "opacity-0"}`} />
+                )}
+            </div>
+        </div>
+    );
+}
+
+function About() {
+    return (
+        <section id="about" className="relative min-h-screen flex items-center justify-center px-6 py-24">
+
+            {/* Nebula glow */}
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+                <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-cyan-500/4 blur-3xl" />
+            </div>
+
+            <div className="relative z-10 max-w-5xl w-full grid grid-cols-1 md:grid-cols-[auto_1fr] gap-16 md:gap-24 items-center">
+
                 {/* ── Foto ── */}
-                <div className="flex justify-center md:justify-end">
-                    <div className="relative group">
-                        {/* borda animada */}
-                        <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-green-400 opacity-70 blur-sm group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="flex justify-center md:justify-start">
+                    <div className="relative group flex-shrink-0">
+                        <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-green-400 opacity-60 blur-sm group-hover:opacity-100 transition-opacity duration-500" />
                         <img
                             src="/foto_perfil.jpg"
                             alt="João Batista"
-                            className="relative w-64 h-80 md:w-72 md:h-96 object-cover object-top rounded-2xl"
+                            className="relative w-56 h-72 md:w-64 md:h-80 object-cover object-top rounded-2xl"
                         />
                     </div>
                 </div>
 
-                {/* ── Texto ── */}
-                <div className="flex flex-col gap-6">
-                    {/* eyebrow */}
-                    <span className="text-xs tracking-[0.3em] text-cyan-400 uppercase font-semibold">
-                        Sobre mim
+                {/* ── Conteúdo ── */}
+                <div className="flex flex-col gap-5">
+                    <span className="text-[10px] tracking-[0.35em] text-cyan-500 uppercase font-semibold">
+                        // sobre mim
                     </span>
 
-                    <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-                        Olá, eu sou o{" "}
-                        <span className="bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
-                            João Batista
-                        </span>
+                    <h2 className="text-2xl md:text-3xl font-bold leading-snug text-white">
+                        Dev front-end em construção,{" "}
+                        <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                            com projetos reais
+                        </span>{" "}
+                        pra mostrar.
                     </h2>
 
-                    <p className="text-zinc-300 text-base leading-relaxed">
-                        Tenho 19 anos, sou de{" "}
-                        <span className="text-cyan-300 font-medium">Paulista — PE</span>,
-                        e estou cursando{" "}
-                        <span className="text-cyan-300 font-medium">
-                            Análise e Desenvolvimento de Sistemas
-                        </span>
-                        . Minha paixão é construir interfaces que unem estética e
-                        funcionalidade — acredito que um bom front-end não é só bonito,
-                        é intuitivo e acessível.
+                    <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
+                        Comecei cedo, aprendo rápido e já entreguei projetos reconhecidos por bancas técnicas.
+                        Acredito que bom front-end não é só visual — é código limpo, experiência fluida e atenção
+                        ao detalhe que faz a diferença.
                     </p>
 
-                    <p className="text-zinc-400 text-sm leading-relaxed">
-                        Estou no início da carreira e aprendendo todos os dias, mas já
-                        tenho foco bem definido: criar experiências web modernas com
-                        React, TypeScript e uma atenção cuidadosa a cada detalhe visual.
-                    </p>
-
-                    {/* Pills de info */}
-                    <div className="flex flex-wrap gap-3 mt-2">
-                        {[
-                            { icon: "📍", label: "Paulista, PE" },
-                            { icon: "🎓", label: "ADS — em andamento" },
-                            { icon: "💻", label: "Foco em Front-End" },
-                            { icon: "🚀", label: "Disponível para oportunidades" },
-                        ].map(({ icon, label }) => (
-                            <span
-                                key={label}
-                                className="flex items-center gap-2 text-xs text-zinc-300 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm"
-                            >
-                                {icon} {label}
-                            </span>
-                        ))}
-                    </div>
+                    <Terminal />
                 </div>
             </div>
         </section>
