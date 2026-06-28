@@ -138,13 +138,54 @@ function About() {
 
                 {/* ── Foto ── */}
                 <div className="flex justify-center md:justify-start">
-                    <div className="relative group flex-shrink-0">
-                        <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-green-400 opacity-60 blur-sm group-hover:opacity-100 transition-opacity duration-500" />
-                        <img
-                            src="/foto_perfil.jpg"
-                            alt="João Batista"
-                            className="relative w-56 h-72 md:w-64 md:h-80 object-cover object-top rounded-2xl"
-                        />
+                    <div
+                        className="relative flex-shrink-0"
+                        style={{ perspective: "800px" }}
+                        onMouseMove={e => {
+                            const el = e.currentTarget;
+                            const rect = el.getBoundingClientRect();
+                            const x = (e.clientX - rect.left) / rect.width  - 0.5;
+                            const y = (e.clientY - rect.top)  / rect.height - 0.5;
+                            const card = el.querySelector<HTMLElement>(".photo-tilt");
+                            const glow = el.querySelector<HTMLElement>(".photo-glow");
+                            if (card) card.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 20}deg) scale(1.04)`;
+                            if (glow) { glow.style.left = `${(x + 0.5) * 100}%`; glow.style.top = `${(y + 0.5) * 100}%`; glow.style.opacity = "1"; }
+                        }}
+                        onMouseLeave={e => {
+                            const el = e.currentTarget;
+                            const card = el.querySelector<HTMLElement>(".photo-tilt");
+                            const glow = el.querySelector<HTMLElement>(".photo-glow");
+                            if (card) card.style.transform = "rotateY(0deg) rotateX(0deg) scale(1)";
+                            if (glow) glow.style.opacity = "0";
+                        }}
+                    >
+                        {/* Gradient border */}
+                        <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-green-400 opacity-60 blur-sm transition-opacity duration-500 group-hover:opacity-100" />
+
+                        {/* Tilt card */}
+                        <div
+                            className="photo-tilt relative rounded-2xl overflow-hidden"
+                            style={{ transition: "transform 0.15s ease-out", transformStyle: "preserve-3d", willChange: "transform" }}
+                        >
+                            <img
+                                src="/foto_perfil.jpg"
+                                alt="João Batista"
+                                className="w-56 h-72 md:w-64 md:h-80 object-cover object-top rounded-2xl block"
+                            />
+                            {/* Moving shine */}
+                            <div
+                                className="photo-glow pointer-events-none absolute w-32 h-32 rounded-full -translate-x-1/2 -translate-y-1/2"
+                                style={{
+                                    background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)",
+                                    opacity: 0,
+                                    transition: "opacity 0.2s ease",
+                                    top: "50%", left: "50%",
+                                }}
+                            />
+                            {/* Scanline overlay */}
+                            <div className="absolute inset-0 pointer-events-none rounded-2xl"
+                                style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px)" }} />
+                        </div>
                     </div>
                 </div>
 
