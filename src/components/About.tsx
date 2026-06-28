@@ -117,11 +117,21 @@ function Terminal() {
 
 function About() {
     return (
-        <section id="about" className="relative min-h-screen flex items-center justify-center px-6 py-24">
+        <section id="about" className="relative min-h-screen flex flex-col items-center justify-center px-6 py-24">
 
             {/* Nebula glow */}
             <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
                 <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-cyan-500/4 blur-3xl" />
+            </div>
+
+            {/* Section title */}
+            <div className="relative z-10 text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent"
+                    style={{ textShadow: "none" }}>
+                    <span className="text-emerald-400/40 font-light">&lt;</span>
+                    {" "}Sobre{" "}
+                    <span className="text-emerald-400/40 font-light">/&gt;</span>
+                </h2>
             </div>
 
             <div className="relative z-10 max-w-5xl w-full grid grid-cols-1 md:grid-cols-[auto_1fr] gap-16 md:gap-24 items-center">
@@ -140,10 +150,6 @@ function About() {
 
                 {/* ── Conteúdo ── */}
                 <div className="flex flex-col gap-5">
-                    <span className="text-[10px] tracking-[0.35em] text-cyan-500 uppercase font-semibold">
-                        // sobre mim
-                    </span>
-
                     <h2 className="text-2xl md:text-3xl font-bold leading-snug text-white">
                         Dev front-end em construção,{" "}
                         <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
@@ -152,7 +158,7 @@ function About() {
                         pra mostrar.
                     </h2>
 
-                    <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
+                    <p className="text-zinc-400 text-sm leading-relaxed max-w-xl text-justify">
                         Comecei cedo, aprendo rápido e já entreguei projetos reconhecidos por bancas técnicas.
                         Acredito que bom front-end não é só visual — é código limpo, experiência fluida e atenção
                         ao detalhe que faz a diferença.

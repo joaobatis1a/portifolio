@@ -43,7 +43,7 @@ function Hero() {
                     />
                 </h1>
 
-                <div className="h-[3px] w-24 md:w-96 rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400" />
+                <div className="h-[3px] w-95 md:w-200 rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400" />
 
                 {/* Botões */}
                 <div className="flex flex-col sm:flex-row gap-4 mt-2">
