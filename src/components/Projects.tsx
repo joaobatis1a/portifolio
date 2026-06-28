@@ -133,104 +133,266 @@ type LockedProject = typeof LOCKED[0];
 
 /* ── Per-project card effects ── */
 
-// Limpattack: pixel battle sparks — small squares bursting from center like hits
+// Limpattack: pixel fox walks across the card
 function LimpattackEffect() {
-  type Spark = { x: number; y: number; vx: number; vy: number; life: number; size: number; id: number };
-  const [sparks, setSparks] = useState<Spark[]>([]);
-  const spawnRef = useRef<number>();
+  const [t, setT] = useState(0);
   const rafRef = useRef<number>();
   useEffect(() => {
-    let id = 0;
-    const spawn = () => {
-      setSparks(prev => {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 2.5 + 0.8;
-        const fresh: Spark[] = Array.from({ length: 3 }, () => {
-          const a = angle + (Math.random() - 0.5) * 1.2;
-          return { x: 110 + Math.cos(a) * 12, y: 70 + Math.sin(a) * 10, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed - 0.5, life: 1, size: Math.random() * 4 + 2, id: id++ };
-        });
-        return [...prev.filter(p => p.life > 0), ...fresh].slice(-30);
-      });
-      spawnRef.current = window.setTimeout(spawn, 180);
-    };
-    const tick = () => {
-      setSparks(prev => prev.map(p => ({ ...p, x: p.x + p.vx, y: p.y + p.vy, vy: p.vy + 0.08, life: p.life - 0.045 })).filter(p => p.life > 0));
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    spawn(); rafRef.current = requestAnimationFrame(tick);
-    return () => { clearTimeout(spawnRef.current); cancelAnimationFrame(rafRef.current!); };
+    let start: number;
+    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current!);
   }, []);
-  return (
-    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140">
-      {/* Pixel grid hint */}
-      {Array.from({ length: 6 }, (_, i) => Array.from({ length: 4 }, (_, j) => (
-        <rect key={`${i}-${j}`} x={18 + i * 30} y={12 + j * 30} width="4" height="4"
-          fill="rgba(251,191,36,0.08)" rx="0.5" />
-      )))}
-      {/* Battle sparks as pixel squares */}
-      {sparks.map(s => (
-        <rect key={s.id}
-          x={s.x - s.size / 2} y={s.y - s.size / 2}
-          width={s.size * s.life} height={s.size * s.life}
-          fill={s.life > 0.6 ? "#FBbf24" : "#f97316"}
-          opacity={s.life * 0.9} rx="0.5"
-        />
-      ))}
-      {/* HP bar flicker at top */}
-      <rect x="12" y="8" width="80" height="6" rx="3" fill="rgba(251,191,36,0.1)" stroke="rgba(251,191,36,0.25)" strokeWidth="0.5" />
-      <rect x="12" y="8" width={`${55 + Math.sin(Date.now() / 300) * 8}`} height="6" rx="3" fill="rgba(251,191,36,0.5)" style={{ animation: "hpFlicker 1.8s ease-in-out infinite" }} />
-    </svg>
-  );
-}
 
-// Benevo: floating donation hearts/packages drifting upward
-function BenevoEffect() {
-  type Item = { x: number; y: number; vy: number; vx: number; life: number; type: "heart" | "box"; id: number; rot: number };
-  const [items, setItems] = useState<Item[]>([]);
-  const spawnRef = useRef<number>();
-  const rafRef = useRef<number>();
-  useEffect(() => {
-    let id = 0;
-    const spawn = () => {
-      setItems(prev => {
-        const isHeart = Math.random() > 0.4;
-        const fresh: Item = { x: 20 + Math.random() * 180, y: 130, vy: -(Math.random() * 0.9 + 0.4), vx: (Math.random() - 0.5) * 0.5, life: 1, type: isHeart ? "heart" : "box", id: id++, rot: Math.random() * 20 - 10 };
-        return [...prev.filter(p => p.life > 0), fresh].slice(-12);
-      });
-      spawnRef.current = window.setTimeout(spawn, 300);
-    };
-    const tick = () => {
-      setItems(prev => prev.map(p => ({ ...p, x: p.x + p.vx, y: p.y + p.vy, life: p.life - 0.018 })).filter(p => p.life > 0));
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    spawn(); rafRef.current = requestAnimationFrame(tick);
-    return () => { clearTimeout(spawnRef.current); cancelAnimationFrame(rafRef.current!); };
-  }, []);
+  const speed = 22;
+  const totalWidth = 260;
+  const foxX = ((t * speed) % (totalWidth + 40)) - 20;
+  const legPhase = t * 7;
+  const bobY = Math.sin(t * 7) * 1.2;
+  const tailWag = Math.sin(t * 5) * 8;
+
+  // Pixel grid floor
+  const floorTiles = Array.from({ length: 14 }, (_, i) => i);
+
   return (
     <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140">
-      {/* Subtle network lines */}
-      {[[30,120,80,60],[80,60,160,90],[160,90,190,40],[30,120,160,90]].map(([x1,y1,x2,y2],i) => (
-        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(59,130,246,0.08)" strokeWidth="0.8" strokeDasharray="3 6" />
+      {/* Pixel grid bg */}
+      {Array.from({ length: 28 }, (_, i) => (
+        <rect key={i} x={(i % 7) * 32} y={Math.floor(i / 7) * 35} width="1" height="1" fill="rgba(251,191,36,0.06)" />
       ))}
-      {items.map(it => (
-        <g key={it.id} transform={`translate(${it.x},${it.y}) rotate(${it.rot})`} opacity={it.life * 0.85}>
-          {it.type === "heart" ? (
-            <path d="M0,-5 C0,-9 -7,-9 -7,-4 C-7,0 0,6 0,6 C0,6 7,0 7,-4 C7,-9 0,-9 0,-5 Z"
-              fill="rgba(59,130,246,0.7)" style={{ filter: "drop-shadow(0 0 4px rgba(59,130,246,0.5))" }} />
-          ) : (
-            <g>
-              <rect x="-6" y="-5" width="12" height="10" rx="1" fill="none" stroke="rgba(59,130,246,0.6)" strokeWidth="1" />
-              <line x1="-6" y1="-1" x2="6" y2="-1" stroke="rgba(59,130,246,0.4)" strokeWidth="0.8" />
-              <line x1="0" y1="-5" x2="0" y2="5" stroke="rgba(59,130,246,0.4)" strokeWidth="0.8" />
-            </g>
-          )}
+
+      {/* Floor tiles */}
+      {floorTiles.map(i => (
+        <rect key={i} x={i * 16} y={108} width="15" height="6" fill={i % 2 === 0 ? "rgba(251,191,36,0.10)" : "rgba(251,191,36,0.05)"} />
+      ))}
+      <line x1="0" y1="108" x2="220" y2="108" stroke="rgba(251,191,36,0.2)" strokeWidth="1" />
+
+      {/* Pixel fox */}
+      <g transform={`translate(${foxX}, ${96 + bobY})`}>
+        {/* Tail — behind body */}
+        <g transform={`rotate(${tailWag}, -10, 0)`} style={{ transformOrigin: "-10px 0px" }}>
+          {/* Tail base */}
+          <rect x="-20" y="-4" width="10" height="6" fill="#c2410c" />
+          {/* Tail tip (white) */}
+          <rect x="-26" y="-5" width="8" height="8" fill="#fef3c7" />
+          <rect x="-24" y="-7" width="4" height="3" fill="#fef3c7" />
         </g>
+
+        {/* Body */}
+        <rect x="-10" y="-10" width="22" height="12" fill="#fb923c" />
+        {/* Belly */}
+        <rect x="-4" y="-6" width="10" height="8" fill="#fde68a" />
+
+        {/* Head */}
+        <rect x="6" y="-18" width="16" height="14" fill="#fb923c" />
+        {/* Ears */}
+        <rect x="7" y="-24" width="5" height="8" fill="#fb923c" />
+        <rect x="9" y="-22" width="3" height="5" fill="#fda4af" />
+        <rect x="16" y="-24" width="5" height="8" fill="#fb923c" />
+        <rect x="18" y="-22" width="3" height="5" fill="#fda4af" />
+        {/* Face mask (white) */}
+        <rect x="14" y="-12" width="9" height="8" fill="#fef3c7" />
+        {/* Eye */}
+        <rect x="8" y="-14" width="3" height="3" fill="#1c1917" />
+        <rect x="9" y="-13" width="1" height="1" fill="white" />
+        {/* Nose */}
+        <rect x="20" y="-9" width="3" height="2" fill="#1c1917" />
+
+        {/* Legs — animated */}
+        {(() => {
+          const l1 = Math.sin(legPhase) > 0 ? 4 : 0;
+          const l2 = Math.sin(legPhase) > 0 ? 0 : 4;
+          return (
+            <>
+              {/* Front legs */}
+              <rect x="4" y="2" width="4" height={6 + l1} fill="#fb923c" />
+              <rect x="10" y="2" width="4" height={6 + l2} fill="#c2410c" />
+              {/* Back legs */}
+              <rect x="-8" y="2" width="4" height={6 + l2} fill="#fb923c" />
+              <rect x="-2" y="2" width="4" height={6 + l1} fill="#c2410c" />
+              {/* Paws */}
+              <rect x="3" y={8 + l1} width="6" height="3" fill="#1c1917" />
+              <rect x="9" y={8 + l2} width="6" height="3" fill="#1c1917" />
+              <rect x="-9" y={8 + l2} width="6" height="3" fill="#1c1917" />
+              <rect x="-3" y={8 + l1} width="6" height="3" fill="#1c1917" />
+            </>
+          );
+        })()}
+      </g>
+
+      {/* Dust puff when fox moves */}
+      {[0, 1, 2].map(i => {
+        const dustX = foxX - 8 - i * 7;
+        const dustOpacity = Math.max(0, 0.35 - i * 0.12) * Math.abs(Math.sin(t * 7 + i));
+        return (
+          <g key={i} opacity={dustOpacity}>
+            <rect x={dustX} y={107} width="5" height="3" fill="rgba(251,191,36,0.5)" />
+            <rect x={dustX + 2} y={104} width="3" height="3" fill="rgba(251,191,36,0.3)" />
+          </g>
+        );
+      })}
+
+      {/* Stars in bg */}
+      {[[20,18],[180,12],[100,8],[155,30],[45,35]].map(([sx,sy],i) => (
+        <rect key={i} x={sx} y={sy} width="2" height="2"
+          fill="rgba(251,191,36,0.4)"
+          opacity={0.3 + 0.5 * Math.abs(Math.sin(t * 1.2 + i * 1.3))} />
       ))}
     </svg>
   );
 }
 
-// Ponte: connection nodes linking up — lines drawing between dots
+// Benevo: pixel art crates being stacked and organized in a warehouse
+function BenevoEffect() {
+  const [t, setT] = useState(0);
+  const rafRef = useRef<number>();
+  useEffect(() => {
+    let start: number;
+    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current!);
+  }, []);
+
+  // Worker walks left and right carrying a crate
+  const cycleTime = 5.5;
+  const phase = (t % cycleTime) / cycleTime;
+  // 0-0.4: walk right (empty), 0.4-0.5: pick up, 0.5-0.9: walk left (carrying), 0.9-1.0: place
+  const walkRight = phase < 0.4;
+  const pickingUp = phase >= 0.4 && phase < 0.5;
+  const walkLeft = phase >= 0.5 && phase < 0.9;
+  const placing = phase >= 0.9;
+  const carrying = walkLeft || placing;
+
+  const workerX = walkRight
+    ? 148 - (phase / 0.4) * 80
+    : walkLeft
+    ? 68 + ((phase - 0.5) / 0.4) * 80
+    : walkRight ? 148 : placing ? 148 : 68;
+
+  const finalWorkerX = walkRight
+    ? 148 - (phase / 0.4) * 80
+    : pickingUp
+    ? 68
+    : walkLeft
+    ? 68 + ((phase - 0.5) / 0.4) * 80
+    : 148;
+
+  const legPhase = (walkRight || walkLeft) ? t * 6 : 0;
+  const legSwing = Math.sin(legPhase) > 0;
+  const bobY = (walkRight || walkLeft) ? Math.sin(legPhase) * 1 : 0;
+
+  // How many crates are stacked (increases over time, resets)
+  const stackCount = Math.min(3, Math.floor(t / cycleTime) % 4);
+
+  // Crate colors cycling
+  const crateColors = [
+    { body: "rgba(59,130,246,0.85)", top: "rgba(96,165,250,0.9)", stripe: "rgba(147,197,253,0.4)" },
+    { body: "rgba(37,99,235,0.85)", top: "rgba(59,130,246,0.9)", stripe: "rgba(96,165,250,0.4)" },
+    { body: "rgba(29,78,216,0.85)", top: "rgba(37,99,235,0.9)", stripe: "rgba(59,130,246,0.4)" },
+  ];
+
+  const renderCrate = (cx: number, cy: number, colorIdx: number, key: string) => {
+    const c = crateColors[colorIdx % crateColors.length];
+    return (
+      <g key={key} transform={`translate(${cx},${cy})`}>
+        <rect x="-9" y="-10" width="18" height="10" fill={c.body} />
+        <rect x="-9" y="-10" width="18" height="2" fill={c.top} />
+        <rect x="-9" y="-10" width="1" height="10" fill={c.top} opacity={0.5} />
+        <rect x="8" y="-10" width="1" height="10" fill="rgba(0,0,0,0.2)" />
+        <rect x="-6" y="-7" width="12" height="1" fill={c.stripe} />
+        <rect x="-6" y="-4" width="12" height="1" fill={c.stripe} />
+        <rect x="0" y="-10" width="1" height="10" fill={c.stripe} opacity={0.6} />
+      </g>
+    );
+  };
+
+  return (
+    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140">
+      {/* Grid floor */}
+      {Array.from({ length: 12 }, (_, i) => (
+        <rect key={i} x={i * 18} y={108} width="17" height="6"
+          fill={i % 2 === 0 ? "rgba(59,130,246,0.07)" : "rgba(59,130,246,0.04)"} />
+      ))}
+      <line x1="0" y1="108" x2="220" y2="108" stroke="rgba(59,130,246,0.25)" strokeWidth="1" />
+
+      {/* Shelf on the left */}
+      <rect x="8" y="60" width="52" height="3" fill="rgba(59,130,246,0.5)" />
+      <rect x="8" y="82" width="52" height="3" fill="rgba(59,130,246,0.4)" />
+      <rect x="8" y="60" width="3" height="48" fill="rgba(59,130,246,0.35)" />
+      <rect x="57" y="60" width="3" height="48" fill="rgba(59,130,246,0.35)" />
+      {/* Shelf bottom support */}
+      <rect x="8" y="105" width="52" height="3" fill="rgba(59,130,246,0.3)" />
+
+      {/* Fixed crates on shelf — top row */}
+      {renderCrate(24, 78, 1, "shelf-t1")}
+      {renderCrate(43, 78, 2, "shelf-t2")}
+      {/* Fixed crates on shelf — bottom row (grows with stack) */}
+      {stackCount >= 1 && renderCrate(24, 100, 0, "shelf-b1")}
+      {stackCount >= 2 && renderCrate(43, 100, 1, "shelf-b2")}
+      {stackCount >= 3 && renderCrate(33, 90, 2, "shelf-b3")}
+
+      {/* Pickup zone — right side */}
+      <rect x="148" y="95" width="55" height="3" fill="rgba(59,130,246,0.3)" />
+      <rect x="148" y="95" width="3" height="13" fill="rgba(59,130,246,0.25)" />
+      <rect x="200" y="95" width="3" height="13" fill="rgba(59,130,246,0.25)" />
+      {/* Waiting crate on pickup zone */}
+      {!placing && renderCrate(175, 95, stackCount % 3, "pickup")}
+
+      {/* Pixel worker */}
+      <g transform={`translate(${finalWorkerX}, ${96 + bobY})`}>
+        {/* Carried crate above head */}
+        {carrying && (
+          <g transform="translate(0,-22)">
+            {renderCrate(0, -4, stackCount % 3, "carried")}
+          </g>
+        )}
+        {/* Head */}
+        <rect x="-4" y="-20" width="8" height="7" fill="rgba(147,197,253,0.9)" />
+        {/* Hair */}
+        <rect x="-4" y="-20" width="8" height="2" fill="rgba(30,58,138,0.8)" />
+        {/* Eyes */}
+        <rect x={walkLeft || placing ? -2 : 1} y="-16" width="2" height="2" fill="rgba(10,10,40,0.9)" />
+        {/* Body */}
+        <rect x="-5" y="-13" width="10" height="9" fill="rgba(37,99,235,0.9)" />
+        {/* Vest detail */}
+        <rect x="-2" y="-13" width="4" height="9" fill="rgba(59,130,246,0.6)" />
+        {/* Arms */}
+        {carrying ? (
+          <>
+            <rect x="-8" y="-13" width="3" height="6" fill="rgba(147,197,253,0.8)" />
+            <rect x="5" y="-13" width="3" height="6" fill="rgba(147,197,253,0.8)" />
+          </>
+        ) : (
+          <>
+            <rect x={legSwing ? -8 : 5} y="-12" width="3" height="5" fill="rgba(147,197,253,0.8)" />
+            <rect x={legSwing ? 5 : -8} y="-12" width="3" height="5" fill="rgba(147,197,253,0.8)" />
+          </>
+        )}
+        {/* Legs */}
+        <rect x={legSwing ? -4 : 0} y="-4" width="3" height={6 + (legSwing ? 2 : 0)} fill="rgba(29,78,216,0.9)" />
+        <rect x={legSwing ? 0 : -4} y="-4" width="3" height={6 + (!legSwing ? 2 : 0)} fill="rgba(29,78,216,0.9)" />
+        {/* Boots */}
+        <rect x={legSwing ? -5 : -1} y={2 + (legSwing ? 2 : 0)} width="5" height="2" fill="rgba(15,23,42,0.9)" />
+        <rect x={legSwing ? -1 : -5} y={2 + (!legSwing ? 2 : 0)} width="5" height="2" fill="rgba(15,23,42,0.9)" />
+      </g>
+
+      {/* BG dots */}
+      {[[20,15],[190,18],[110,10],[160,28],[55,32],[195,55],[15,65]].map(([sx,sy],i) => (
+        <rect key={i} x={sx} y={sy} width="2" height="2"
+          fill="rgba(59,130,246,0.3)"
+          opacity={0.2 + 0.5 * Math.abs(Math.sin(t * 0.9 + i * 1.1))} />
+      ))}
+
+      {/* Status label */}
+      <rect x="70" y="6" width="80" height="13" rx="3" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" strokeWidth="0.5" />
+      <text x="110" y="16" textAnchor="middle" fill="rgba(147,197,253,0.6)" fontSize="7" fontFamily="monospace" letterSpacing="0.5">
+        {carrying ? "TRANSPORTE EM CURSO" : placing ? "ARMAZENANDO..." : "AGUARDANDO CARGA"}
+      </text>
+    </svg>
+  );
+}
+
+// Ponte: clean pixel bridge — solid arch, no suspension cables, person walking across
 function PonteEffect() {
   const [t, setT] = useState(0);
   const rafRef = useRef<number>();
@@ -240,36 +402,86 @@ function PonteEffect() {
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current!);
   }, []);
-  const nodes = [
-    { x: 30, y: 70 }, { x: 75, y: 30 }, { x: 110, y: 70 },
-    { x: 155, y: 25 }, { x: 190, y: 70 }, { x: 145, y: 110 }, { x: 65, y: 110 },
-  ];
-  const edges = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0],[2,5],[1,3]];
+
+  const personX = 18 + ((t * 20) % 186);
+  const legPhase = t * 6;
+  const legSwing = Math.sin(legPhase) > 0;
+  const bobY = Math.sin(legPhase) * 0.8;
+
   return (
     <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140">
-      {edges.map(([a, b], i) => {
-        const phase = (t * 0.6 + i * 0.3) % 1;
-        const nx1 = nodes[a].x, ny1 = nodes[a].y, nx2 = nodes[b].x, ny2 = nodes[b].y;
-        const px = nx1 + (nx2 - nx1) * phase, py = ny1 + (ny2 - ny1) * phase;
-        return (
-          <g key={i}>
-            <line x1={nx1} y1={ny1} x2={nx2} y2={ny2} stroke="rgba(249,115,22,0.1)" strokeWidth="0.8" />
-            <circle cx={px} cy={py} r="2.5" fill="rgba(249,115,22,0.7)" style={{ filter: "drop-shadow(0 0 4px rgba(249,115,22,0.6))" }} />
-          </g>
-        );
-      })}
-      {nodes.map((n, i) => {
-        const pulse = 0.5 + 0.5 * Math.sin(t * 1.5 + i * 0.9);
-        return (
-          <circle key={i} cx={n.x} cy={n.y} r={3 + pulse * 1.5}
-            fill="none" stroke="rgba(249,115,22,0.5)" strokeWidth="1"
-            opacity={0.4 + pulse * 0.5} />
-        );
-      })}
-      {nodes.map((n, i) => (
-        <circle key={`c${i}`} cx={n.x} cy={n.y} r="3" fill="rgba(249,115,22,0.8)"
-          style={{ filter: "drop-shadow(0 0 3px rgba(249,115,22,0.7))" }} />
+
+      {/* Sky stars */}
+      {[[18,14],[68,9],[118,16],[172,10],[200,22],[42,26],[148,20]].map(([sx,sy],i) => (
+        <rect key={i} x={sx} y={sy} width="2" height="2"
+          fill="rgba(249,115,22,0.35)"
+          opacity={0.2 + 0.6 * Math.abs(Math.sin(t * 0.8 + i * 1.1))} />
       ))}
+
+      {/* Water ripples */}
+      {[0,1,2].map(row => (
+        Array.from({ length: 10 }, (_, col) => (
+          <rect key={`${row}-${col}`}
+            x={col * 22 + (row % 2) * 11}
+            y={118 + row * 6}
+            width="18" height="4"
+            fill={`rgba(59,130,246,${0.05 + 0.025 * Math.sin(t * 1.4 + col * 0.5 + row)})`} />
+        ))
+      ))}
+
+      {/* Bridge arch — simple solid structure */}
+      {/* Left bank */}
+      <rect x="0" y="88" width="28" height="8" fill="rgba(249,115,22,0.9)" />
+      <rect x="0" y="96" width="28" height="4" fill="rgba(194,65,12,0.8)" />
+      <rect x="0" y="88" width="28" height="30" fill="rgba(180,60,10,0.3)" />
+
+      {/* Right bank */}
+      <rect x="192" y="88" width="28" height="8" fill="rgba(249,115,22,0.9)" />
+      <rect x="192" y="96" width="28" height="4" fill="rgba(194,65,12,0.8)" />
+      <rect x="192" y="88" width="28" height="30" fill="rgba(180,60,10,0.3)" />
+
+      {/* Bridge deck — single clean span */}
+      <rect x="20" y="88" width="180" height="8" fill="rgba(249,115,22,0.88)" />
+      <rect x="20" y="96" width="180" height="3" fill="rgba(194,65,12,0.85)" />
+
+      {/* Left pillar */}
+      <rect x="24" y="52" width="12" height="38" fill="rgba(249,115,22,0.85)" />
+      <rect x="22" y="50" width="16" height="5" fill="rgba(253,186,116,0.9)" />
+      <rect x="26" y="46" width="8" height="6" fill="rgba(249,115,22,0.7)" />
+      <rect x="28" y="43" width="4" height="4" fill="rgba(253,186,116,0.8)" />
+
+      {/* Right pillar */}
+      <rect x="184" y="52" width="12" height="38" fill="rgba(249,115,22,0.85)" />
+      <rect x="182" y="50" width="16" height="5" fill="rgba(253,186,116,0.9)" />
+      <rect x="186" y="46" width="8" height="6" fill="rgba(249,115,22,0.7)" />
+      <rect x="188" y="43" width="4" height="4" fill="rgba(253,186,116,0.8)" />
+
+      {/* Deck road markings */}
+      {[50, 82, 114, 146].map(mx => (
+        <rect key={mx} x={mx} y="90" width="14" height="2" fill="rgba(253,186,116,0.18)" />
+      ))}
+
+      {/* Guardrails — simple posts, no cables */}
+      {[36, 60, 84, 108, 132, 156, 180].map(px => (
+        <rect key={px} x={px} y="74" width="3" height="15" fill="rgba(249,115,22,0.45)" />
+      ))}
+      {/* Single top rail */}
+      <line x1="36" y1="75" x2="182" y2="75" stroke="rgba(249,115,22,0.35)" strokeWidth="1.5" />
+
+      {/* Pixel person walking */}
+      <g transform={`translate(${personX}, ${80 + bobY})`}>
+        {/* Head */}
+        <rect x="-3" y="-12" width="6" height="6" fill="rgba(253,186,116,0.95)" />
+        {/* Body */}
+        <rect x="-3" y="-6" width="6" height="7" fill="rgba(249,115,22,0.9)" />
+        {/* Legs */}
+        <rect x={legSwing ? -3 : -1} y="1" width="2" height="5" fill="rgba(194,65,12,0.9)" />
+        <rect x={legSwing ? 1 : -3} y="1" width="2" height="5" fill="rgba(194,65,12,0.9)" />
+        {/* Arms */}
+        <rect x={legSwing ? -6 : 3} y="-5" width="3" height="2" fill="rgba(253,186,116,0.85)" />
+        <rect x={legSwing ? 3 : -6} y="-5" width="3" height="2" fill="rgba(253,186,116,0.85)" />
+      </g>
+
     </svg>
   );
 }
@@ -365,6 +577,7 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
   const [show, setShow] = useState(false);
   const [tab, setTab] = useState<"sobre" | "stack">("sobre");
   const c = project.color;
+  const Effect = CARD_EFFECTS[project.id];
   useEffect(() => { requestAnimationFrame(() => setShow(true)); }, []);
 
   return (
@@ -390,12 +603,26 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
         }}
       >
         {/* Scanlines */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(34,197,94,0.012) 3px,rgba(34,197,94,0.012) 4px)" }} />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(34,197,94,0.012) 3px,rgba(34,197,94,0.012) 4px)", zIndex: 1 }} />
+
+        {/* Per-project animated background — subtle, bottom half only */}
+        {show && Effect && (
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: "160px",
+            pointerEvents: "none", overflow: "hidden", opacity: 0.38,
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 35%, black 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 35%, black 100%)",
+            zIndex: 0,
+          }}>
+            <Effect />
+          </div>
+        )}
+
         {/* Top glow bar */}
-        <div style={{ height: "3px", background: `linear-gradient(90deg, transparent, ${c.base}, ${c.glow}, ${c.base}, transparent)` }} />
+        <div style={{ height: "3px", background: `linear-gradient(90deg, transparent, ${c.base}, ${c.glow}, ${c.base}, transparent)`, position: "relative", zIndex: 2 }} />
 
         {/* Header */}
-        <div style={{ padding: "24px 28px 18px", borderBottom: `1px solid ${c.solid}`, position: "relative" }}>
+        <div style={{ padding: "24px 28px 18px", borderBottom: `1px solid ${c.solid}`, position: "relative", zIndex: 2 }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
@@ -432,42 +659,17 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
           </div>
         </div>
 
-        <div style={{ padding: "22px 28px 26px", minHeight: "180px" }}>
+        <div style={{ padding: "22px 28px 26px", minHeight: "180px", position: "relative", zIndex: 2 }}>
           {tab === "sobre" ? (
             <div>
               <p style={{ color: "rgba(200,200,210,0.9)", fontSize: "14px", lineHeight: "1.7", marginBottom: "20px" }}>
                 {project.fullDesc}
               </p>
-              {/* Trailer button — highlighted but proportional */}
-              {project.trailer && (
-                <a
-                  href={project.trailer}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: "7px",
-                    padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 700,
-                    textDecoration: "none", position: "relative", overflow: "hidden",
-                    background: "linear-gradient(135deg, rgba(251,191,36,0.2), rgba(234,88,12,0.15))",
-                    border: "1px solid rgba(251,191,36,0.55)",
-                    color: "rgba(253,230,138,0.95)",
-                    boxShadow: "0 0 18px rgba(251,191,36,0.2)",
-                    animation: "trailerPulse 2.5s ease-in-out infinite",
-                  }}
-                >
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(105deg,transparent 30%,rgba(253,230,138,0.1) 50%,transparent 70%)", animation: "trailerShimmer 2.2s linear infinite", pointerEvents: "none" }} />
-                  {/* Play icon */}
-                  <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(251,191,36,0.25)", border: "1px solid rgba(251,191,36,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative" }}>
-                    <div style={{ position: "absolute", inset: "-3px", borderRadius: "50%", border: "1px solid rgba(251,191,36,0.3)", animation: "trailerRing 2s ease-out infinite" }} />
-                    <svg style={{ width: 9, height: 9, marginLeft: "1px" }} fill="rgba(253,230,138,0.95)" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                  </div>
-                  <span style={{ position: "relative" }}>▶ Trailer</span>
-                </a>
-              )}
 
+              {/* Action buttons row — GitHub, Demo, and Trailer (if exists) all together */}
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 <a href={project.github} target="_blank" rel="noopener noreferrer"
-                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#e4e4e7", transition: "opacity 0.2s" }}>
+                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#e4e4e7" }}>
                   <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                   </svg>
@@ -480,6 +682,56 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
                   </svg>
                   Ver Demo
                 </a>
+
+                {/* Pixel art RPG-style trailer button — Limpattack amber theme */}
+                {project.trailer && (
+                  <a
+                    href={project.trailer}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pixel-trailer-btn"
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: "7px",
+                      padding: "7px 13px",
+                      textDecoration: "none", position: "relative",
+                      background: "rgba(120,60,0,0.85)",
+                      color: "rgba(255,236,120,0.97)",
+                      fontSize: "11px", fontWeight: 900,
+                      fontFamily: "monospace", letterSpacing: "2px", textTransform: "uppercase",
+                      imageRendering: "pixelated",
+                      /* pixel-corner border via box-shadow layering */
+                      outline: "2px solid rgba(251,191,36,0.9)",
+                      outlineOffset: "-2px",
+                      boxShadow: [
+                        /* outer dark pixel shadow — offset L shape */
+                        "4px 4px 0px 0px rgba(60,20,0,0.95)",
+                        /* inner top-left highlight */
+                        "inset 2px 2px 0px 0px rgba(255,220,80,0.25)",
+                        /* inner bottom-right shadow */
+                        "inset -2px -2px 0px 0px rgba(0,0,0,0.4)",
+                        /* amber glow */
+                        "0 0 14px rgba(251,191,36,0.2)",
+                      ].join(","),
+                      borderRadius: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {/* Scanline texture */}
+                    <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 1px,rgba(0,0,0,0.18) 1px,rgba(0,0,0,0.18) 2px)", pointerEvents: "none" }} />
+                    {/* Pixel play icon — chunky L-staircase triangle */}
+                    <svg style={{ width: 12, height: 12, imageRendering: "pixelated", flexShrink: 0, position: "relative" }} viewBox="0 0 6 6" shapeRendering="crispEdges" fill="rgba(255,236,120,0.97)">
+                      <rect x="0" y="0" width="2" height="6" />
+                      <rect x="2" y="1" width="2" height="4" />
+                      <rect x="4" y="2" width="2" height="2" />
+                    </svg>
+                    <span style={{ position: "relative" }}>TRAILER</span>
+                    {/* Corner pixel accents — top-left & bottom-right */}
+                    <span style={{ position: "absolute", top: -2, left: -2, width: 4, height: 4, background: "rgba(251,191,36,0.9)" }} />
+                    <span style={{ position: "absolute", bottom: -2, right: -2, width: 4, height: 4, background: "rgba(251,191,36,0.9)" }} />
+                    <span style={{ position: "absolute", top: -2, right: -2, width: 4, height: 4, background: "rgba(60,20,0,0.9)" }} />
+                    <span style={{ position: "absolute", bottom: -2, left: -2, width: 4, height: 4, background: "rgba(60,20,0,0.9)" }} />
+                  </a>
+                )}
               </div>
             </div>
           ) : (
@@ -499,11 +751,21 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
           )}
         </div>
       </div>
-      <style>{`@keyframes stackPop { from { opacity:0; transform:scale(0.7) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        @keyframes trailerPulse { 0%,100% { box-shadow:0 0 40px rgba(251,191,36,0.2),0 0 80px rgba(234,88,12,0.1),inset 0 1px 0 rgba(253,230,138,0.15); } 50% { box-shadow:0 0 60px rgba(251,191,36,0.35),0 0 120px rgba(234,88,12,0.18),inset 0 1px 0 rgba(253,230,138,0.25); } }
-        @keyframes trailerShimmer { 0% { transform:translateX(-100%); } 100% { transform:translateX(200%); } }
-        @keyframes trailerRing { 0% { transform:scale(1); opacity:0.8; } 100% { transform:scale(1.8); opacity:0; } }
-        @keyframes trailerArrow { 0%,100% { transform:translateX(0); opacity:0.6; } 50% { transform:translateX(5px); opacity:1; } }`}</style>
+      <style>{`
+        @keyframes stackPop { from { opacity:0; transform:scale(0.7) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .pixel-trailer-btn:hover {
+          transform: translate(2px, 2px);
+          box-shadow:
+            2px 2px 0px 0px rgba(60,20,0,0.95),
+            inset 2px 2px 0px 0px rgba(255,220,80,0.25),
+            inset -2px -2px 0px 0px rgba(0,0,0,0.4),
+            0 0 20px rgba(251,191,36,0.35) !important;
+        }
+        .pixel-trailer-btn:active {
+          transform: translate(4px, 4px);
+          box-shadow: 0px 0px 0px 0px rgba(60,20,0,0.95), inset 2px 2px 0px 0px rgba(0,0,0,0.3) !important;
+        }
+      `}</style>
     </div>
   );
 }
@@ -574,13 +836,6 @@ function LockedHoverCard({ locked, svgX, svgY, svgW, svgH, visible }: {
           </div>
         </div>
         <div style={{ padding: "12px" }}>
-          <div style={{ marginBottom: "10px", display: "flex", flexDirection: "column", gap: "5px" }}>
-            {[100, 85, 92, 60].map((w, i) => (
-              <div key={i} style={{ height: "8px", width: `${w}%`, borderRadius: "3px", background: i < 2 ? "rgba(80,60,180,0.4)" : "rgba(239,68,68,0.25)", overflow: "hidden", position: "relative" }}>
-                <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent,transparent 6px,rgba(0,0,0,0.4) 6px,rgba(0,0,0,0.4) 7px)" }} />
-              </div>
-            ))}
-          </div>
           <div style={{ background: "rgba(80,60,180,0.08)", border: "1px solid rgba(100,80,200,0.2)", borderRadius: "6px", padding: "8px 10px", marginBottom: "10px" }}>
             <div style={{ fontSize: "8px", color: "rgba(120,100,200,0.6)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "4px" }}>// PISTA DECODIFICADA</div>
             <p style={{ color: "rgba(180,160,255,0.85)", fontSize: "10px", fontStyle: "italic", lineHeight: "1.5", fontFamily: "serif" }}>"{locked.hint}"</p>
