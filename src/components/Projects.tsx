@@ -1030,19 +1030,37 @@ function IslandMap() {
   const [selectedLocked, setSelectedLocked] = useState<LockedProject | null>(null);
   const [hoveredUnlocked, setHoveredUnlocked] = useState<string | null>(null);
   const [hoveredLocked, setHoveredLocked] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const VW = 800, VH = 600;
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640 || "ontouchstart" in window);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Mobile: zoom into island, crop outer water
+  const viewBox = isMobile ? "60 70 680 480" : `0 0 ${VW} ${VH}`;
 
   return (
     <div className="relative w-full" style={{ maxWidth: 800, margin: "0 auto" }}>
-      {/* Hover cards */}
-      {UNLOCKED.map(p => (
+      {/* Hover cards — desktop only */}
+      {!isMobile && UNLOCKED.map(p => (
         <UnlockedHoverCard key={p.id} project={p} svgX={p.mx} svgY={p.my} svgW={VW} svgH={VH} visible={hoveredUnlocked === p.id && selectedUnlocked === null} />
       ))}
-      {LOCKED.map(lk => (
+      {!isMobile && LOCKED.map(lk => (
         <LockedHoverCard key={lk.id} locked={lk} svgX={lk.mx} svgY={lk.my} svgW={VW} svgH={VH} visible={hoveredLocked === lk.id && selectedLocked === null} />
       ))}
 
-      <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full" style={{ filter: "drop-shadow(0 0 40px rgba(34,197,94,0.08))" }}>
+      <svg
+        viewBox={viewBox}
+        className="w-full"
+        style={{
+          filter: "drop-shadow(0 0 40px rgba(34,197,94,0.08))",
+          minHeight: isMobile ? "340px" : undefined,
+        }}
+      >
         <defs>
           <pattern id="waterGrid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(6,182,212,0.06)" strokeWidth="0.5" />
@@ -1117,8 +1135,8 @@ function IslandMap() {
           return (
             <g key={p.id} style={{ cursor: "pointer" }}
               onClick={() => setSelectedUnlocked(p)}
-              onMouseEnter={() => setHoveredUnlocked(p.id)}
-              onMouseLeave={() => setHoveredUnlocked(null)}
+              onMouseEnter={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
+              onMouseLeave={() => { if (!isMobile) setHoveredUnlocked(null); }}
             >
               <circle cx={p.mx} cy={p.my} r={isH ? 30 : 22} fill="none" stroke={c.ping} strokeWidth="1" style={{ animation: `ping 2s ease-out infinite`, animationDelay: `${idx * 0.6}s`, transition: "r 0.3s ease" }} />
               {isH && <circle cx={p.mx} cy={p.my} r={42} fill="none" stroke={c.ping} strokeWidth="0.5" style={{ animation: `ping 1.5s ease-out infinite` }} />}
@@ -1136,8 +1154,8 @@ function IslandMap() {
           const isH = hoveredLocked === lk.id;
           return (
             <g key={lk.id} style={{ cursor: "pointer" }}
-              onMouseEnter={() => setHoveredLocked(lk.id)}
-              onMouseLeave={() => setHoveredLocked(null)}
+              onMouseEnter={() => { if (!isMobile) setHoveredLocked(lk.id); }}
+              onMouseLeave={() => { if (!isMobile) setHoveredLocked(null); }}
               onClick={() => setSelectedLocked(lk)}
             >
               <circle cx={lk.mx} cy={lk.my} r={16} fill={isH ? "rgba(60,50,120,0.85)" : "rgba(40,40,80,0.7)"} stroke={isH ? "rgba(140,120,255,0.8)" : "rgba(80,80,140,0.4)"} strokeWidth="1.5" style={{ transition: "all 0.3s", filter: isH ? "drop-shadow(0 0 10px rgba(120,100,255,0.6))" : "none" }} />
@@ -1173,7 +1191,8 @@ function Projects() {
           <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Projetos{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
         </h2>
         <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">— explore o território —</p>
-        <p className="mt-2 text-sm text-zinc-500">Passe o mouse nos marcadores · Áreas com névoa guardam segredos</p>
+        <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores · Áreas com névoa guardam segredos</p>
+        <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores · Áreas com névoa guardam segredos</p>
       </div>
       <div className="relative z-10 w-full max-w-3xl"><IslandMap /></div>
     </section>
