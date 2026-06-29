@@ -128,8 +128,121 @@ const ISLAND_PATH = `
   C 118 400, 116 368, 110 330 Z
 `;
 
-type UnlockedProject = typeof UNLOCKED[0];
-type LockedProject = typeof LOCKED[0];
+/* ── Starfield background canvas ── */
+function StarfieldBg() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    let raf: number;
+
+    // Generate stars once
+    const stars = Array.from({ length: 160 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: 0.3 + Math.random() * 1.1,
+      alpha: 0.08 + Math.random() * 0.35,
+      speed: 0.0004 + Math.random() * 0.0012,
+      offset: Math.random() * Math.PI * 2,
+    }));
+
+    // Occasional shooting star state
+    let shootX = -1, shootY = -1, shootProgress = 0, shootActive = false;
+    let shootTimer = 0;
+
+    const draw = (ts: number) => {
+      const W = canvas.offsetWidth, H = canvas.offsetHeight;
+      if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+      ctx.clearRect(0, 0, W, H);
+
+      // Nebula blobs (static, painted once per resize)
+      const blobs = [
+        { x: 0.18, y: 0.25, rx: 0.28, ry: 0.18, color: "rgba(6,182,212,0.028)" },
+        { x: 0.78, y: 0.65, rx: 0.22, ry: 0.16, color: "rgba(34,197,94,0.022)" },
+        { x: 0.52, y: 0.12, rx: 0.32, ry: 0.12, color: "rgba(99,102,241,0.018)" },
+        { x: 0.85, y: 0.3,  rx: 0.15, ry: 0.2,  color: "rgba(6,182,212,0.016)" },
+        { x: 0.1,  y: 0.75, rx: 0.2,  ry: 0.14, color: "rgba(34,197,94,0.02)"  },
+      ];
+      blobs.forEach(b => {
+        const g = ctx.createRadialGradient(b.x * W, b.y * H, 0, b.x * W, b.y * H, Math.max(b.rx * W, b.ry * H));
+        g.addColorStop(0, b.color);
+        g.addColorStop(1, "transparent");
+        ctx.save();
+        ctx.scale(1, (b.ry * H) / (b.rx * W));
+        ctx.beginPath();
+        ctx.arc(b.x * W, b.y * H / ((b.ry * H) / (b.rx * W)), b.rx * W, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Stars with gentle twinkle
+      stars.forEach(s => {
+        const twinkle = s.alpha * (0.7 + 0.3 * Math.sin(ts * s.speed * 1000 + s.offset));
+        ctx.beginPath();
+        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,230,255,${twinkle})`;
+        ctx.fill();
+        // Tiny cross on brighter stars
+        if (s.r > 0.9 && twinkle > 0.25) {
+          ctx.strokeStyle = `rgba(200,230,255,${twinkle * 0.4})`;
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(s.x * W - 3, s.y * H); ctx.lineTo(s.x * W + 3, s.y * H);
+          ctx.moveTo(s.x * W, s.y * H - 3); ctx.lineTo(s.x * W, s.y * H + 3);
+          ctx.stroke();
+        }
+      });
+
+      // Shooting star
+      shootTimer++;
+      if (!shootActive && shootTimer > 280 + Math.random() * 200) {
+        shootTimer = 0;
+        shootActive = true;
+        shootX = Math.random() * 0.6;
+        shootY = Math.random() * 0.4;
+        shootProgress = 0;
+      }
+      if (shootActive) {
+        shootProgress += 0.038;
+        const len = 0.12;
+        const ex = (shootX + shootProgress * 0.18) * W;
+        const ey = (shootY + shootProgress * 0.08) * H;
+        const sx = ex - len * W * 0.18;
+        const sy = ey - len * H * 0.08;
+        const g = ctx.createLinearGradient(sx, sy, ex, ey);
+        g.addColorStop(0, "rgba(200,230,255,0)");
+        g.addColorStop(1, `rgba(200,230,255,${Math.min(shootProgress * 1.5, 1) * 0.7})`);
+        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey);
+        ctx.strokeStyle = g; ctx.lineWidth = 1.2; ctx.stroke();
+        if (shootProgress > 1) shootActive = false;
+      }
+
+      // Subtle scan-line grid (very faint)
+      ctx.strokeStyle = "rgba(6,182,212,0.025)";
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([1, 59]);
+      for (let y = 0; y < H; y += 60) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 0 }}
+    />
+  );
+}
+
+
 
 /* ── Per-project card effects ── */
 
@@ -1184,8 +1297,24 @@ function IslandMap() {
 function Projects() {
   return (
     <section id="projects" className="relative min-h-screen flex flex-col items-center justify-center px-4 py-24"
-      style={{ background: "linear-gradient(180deg,#000000 0%,#03050a 50%,#050810 100%)" }}>
-      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(6,182,212,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.025) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
+      style={{ background: "linear-gradient(180deg,#000508 0%,#00030a 50%,#010610 100%)" }}>
+
+      {/* Starfield + nebulae */}
+      <StarfieldBg />
+
+      {/* Subtle vignette to focus on content */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, rgba(0,3,8,0.65) 100%)",
+        zIndex: 1,
+      }} />
+
+      {/* Very faint grid — thinner than before */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: "linear-gradient(rgba(6,182,212,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.018) 1px,transparent 1px)",
+        backgroundSize: "60px 60px",
+        zIndex: 1,
+      }} />
+
       <div className="relative z-10 text-center mb-12">
         <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
           <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Projetos{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>

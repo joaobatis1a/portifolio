@@ -1201,30 +1201,40 @@ export default function Frontista() {
             <TacticalBackground phase={phase} />
 
             {/* Título — alterna entre scanning e materialize */}
-            <div className="relative text-center mb-8" style={{ zIndex: 6, minHeight: 90 }}>
+            <div className="relative mb-8 w-full" style={{ zIndex: 6 }}>
 
                 {/* Título do radar (some ao materializar) */}
-                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                    opacity: phase === "materialize" ? 0 : 1, transition: "opacity 0.8s ease", pointerEvents: "none" }}>
+                <div className="flex flex-col items-center text-center" style={{
+                    opacity: phase === "materialize" ? 0 : 1,
+                    transition: "opacity 0.8s ease",
+                    pointerEvents: "none",
+                    position: phase === "materialize" ? "absolute" : "relative",
+                    inset: 0,
+                }}>
                     <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent whitespace-nowrap">
                         <span className="text-emerald-400/40 font-light">&lt;</span>
                         {" "}Frontista{" "}
                         <span className="text-emerald-400/40 font-light">/&gt;</span>
                     </h2>
-                    <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
+                    <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase whitespace-nowrap">
                         — sintonizando transmissão —
                     </p>
                 </div>
 
                 {/* Título do card (aparece ao materializar) */}
-                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                    opacity: phase === "materialize" ? 1 : 0, transition: "opacity 0.8s ease 0.4s", pointerEvents: "none" }}>
+                <div className="flex flex-col items-center text-center" style={{
+                    opacity: phase === "materialize" ? 1 : 0,
+                    transition: "opacity 0.8s ease 0.4s",
+                    pointerEvents: "none",
+                    position: phase === "materialize" ? "relative" : "absolute",
+                    inset: 0,
+                }}>
                     <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent whitespace-nowrap">
                         <span className="text-emerald-400/40 font-light">&lt;</span>
                         {" "}Criação{" "}
                         <span className="text-emerald-400/40 font-light">/&gt;</span>
                     </h2>
-                    <p className="mt-3 text-xs tracking-widest text-emerald-500/30 uppercase">
+                    <p className="mt-3 text-xs tracking-widest text-emerald-500/30 uppercase whitespace-nowrap">
                         — sinal captado · transmissão estabilizada —
                     </p>
                 </div>

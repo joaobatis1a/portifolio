@@ -6,6 +6,7 @@ const NAV_LINKS = [
     { to: "about",      label: "Sobre",       icon: "◈" },
     { to: "skills",     label: "Habilidades", icon: "◆" },
     { to: "projects",   label: "Projetos",    icon: "◉" },
+    { to: "frontista",  label: "Criação",     icon: "◈" },
     { to: "training",   label: "Formação",    icon: "◎" },
     { to: "experience", label: "Experiência", icon: "◇" },
     { to: "contact",    label: "Contato",     icon: "◈" },
