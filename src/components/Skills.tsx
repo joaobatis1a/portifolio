@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 // Logos inline para evitar bloqueio de hotlink
-const CLAUDE_LOGO = "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/claude.png";
-const LOVABLE_LOGO = "https://avatars.githubusercontent.com/u/160438561?s=200&v=4";
+const CLAUDE_LOGO = "/logos/claude.png";
+const LOVABLE_LOGO = "/logos/lovable.png";
 
 const CATEGORIES = [
     {
@@ -52,7 +52,7 @@ const CATEGORIES = [
             { name: "Git",     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
             { name: "GitHub",  icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg", white: true },
             { name: "VS Code", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" },
-            { name: "Netlify", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/netlify/netlify-original.svg" },
+            { name: "Netlify", icon: "/logos/netlify.png" },
             { name: "Vercel",  icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg", white: true },
             { name: "Canva",   icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/canva/canva-original.svg" },
         ],
@@ -67,7 +67,7 @@ const CATEGORIES = [
         title: "IA & Produtividade",
         skills: [
             { name: "Claude",  icon: CLAUDE_LOGO },
-            { name: "ChatGPT", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/openai/openai-original.svg", white: true },
+            { name: "ChatGPT", icon: "/logos/chatgpt.png" },
             { name: "Gemini",  icon: "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" },
         ],
     },
