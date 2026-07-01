@@ -1115,7 +1115,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                         </div>
                                     </div>
                                     <div style={{ textAlign: "right" }}>
-                                        <div style={{ fontFamily: "monospace", fontSize: 10, opacity: 0.6 }}>@ofrontista</div>
+                                        <div style={{ fontFamily: "monospace", fontSize: 10, opacity: 0.6 }}>@frontista</div>
                                         <div style={{ fontSize: 14, opacity: 0.4, marginTop: 2 }}>›</div>
                                     </div>
                                 </a>
@@ -1213,7 +1213,7 @@ export default function Frontista() {
                 }}>
                     <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent whitespace-nowrap">
                         <span className="text-emerald-400/40 font-light">&lt;</span>
-                        {" "}Frontista{" "}
+                        {" "}Criação{" "}
                         <span className="text-emerald-400/40 font-light">/&gt;</span>
                     </h2>
                     <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase whitespace-nowrap">
