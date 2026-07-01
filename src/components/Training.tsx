@@ -263,6 +263,7 @@ function NeuralTimeline({
             onMouseLeave={() => onHoverNode(null)}
             onFocus={() => onHoverNode(i)}
             onBlur={() => onHoverNode(null)}
+            onClick={() => onHoverNode(isActive ? null : i)}
             style={{
               position: "absolute",
               left: `${leftPct}%`,
@@ -585,12 +586,6 @@ export default function Training() {
       id="training"
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 py-24"
     >
-      {/* Grid de fundo — só linhas, sem preenchimento, pra não tapar as estrelas */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: "linear-gradient(rgba(6,182,212,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.025) 1px,transparent 1px)",
-        backgroundSize: "60px 60px",
-      }} />
-
       <div className="relative z-10 w-full max-w-5xl">
 
         {/* ── TÍTULO ── */}
@@ -610,6 +605,8 @@ export default function Training() {
           <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
             — cada nó é um capítulo —
           </p>
+          <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores · Cada ano guarda uma história</p>
+          <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores · Cada ano guarda uma história</p>
         </div>
 
         {/* ══════════════════════════════════
