@@ -8,6 +8,7 @@ import Training from "./components/Training";
 import Experience from "./components/Experience";
 import Contact from "./components/Contact";
 import StarBackground from "./components/StarBackground";
+import Footer from "./components/Footer";
 
 function App() {
     return (
@@ -25,6 +26,7 @@ function App() {
                 <Training />
                 <Experience />
                 <Contact />
+                <Footer />
             </div>
         </main>
     );
