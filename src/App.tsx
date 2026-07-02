@@ -9,6 +9,7 @@ import Experience from "./components/Experience";
 import Contact from "./components/Contact";
 import StarBackground from "./components/StarBackground";
 import Footer from "./components/Footer";
+import BackToTop from "./components/BackToTop";
 
 function App() {
     return (
@@ -27,6 +28,7 @@ function App() {
                 <Experience />
                 <Contact />
                 <Footer />
+                <BackToTop />
             </div>
         </main>
     );

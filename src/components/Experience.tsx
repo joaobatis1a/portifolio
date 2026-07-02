@@ -263,6 +263,7 @@ export default function Experience() {
           <div style={{
             background: "rgba(2,8,4,0.97)",
             border: "1px solid rgba(34,197,94,0.18)",
+            borderRadius: 16,
             position: "relative", overflow: "hidden",
           }}>
             {/* Scanlines */}
