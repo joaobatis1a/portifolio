@@ -822,7 +822,7 @@ function MaterializeCard({ show }: { show: boolean }) {
 
     return (
         <div className="relative z-10 flex items-center justify-center px-4 w-full" style={{ zIndex: 10 }}>
-            <div style={{ transform: `translateY(${floatY}px)`, width: "100%", maxWidth: 880 }}>
+            <div style={{ transform: `translateY(${floatY}px)`, width: "100%", maxWidth: 760 }}>
 
                 {/* Transmission bar */}
                 <div className="flex items-center justify-between mb-3 px-1"
@@ -861,8 +861,8 @@ function MaterializeCard({ show }: { show: boolean }) {
                         // Glitch na entrada via filter
                         filter: glitchActive ? `hue-rotate(${Math.random() * 20}deg) brightness(1.4)` : "none",
                         transition: glitchActive ? "none" : "transform 0.05s linear, filter 0.15s ease",
-                        // Cantos cortados
-                        clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)",
+                        // Cantos arredondados
+                        borderRadius: 20,
                     }}
                 >
                     {/* Marcadores de canto HUD */}
@@ -900,10 +900,10 @@ function MaterializeCard({ show }: { show: boolean }) {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr" }} className="card-grid">
 
                         {/* ── ESQUERDA — Identidade ── */}
-                        <div style={{ padding: "clamp(24px,4vw,44px) clamp(20px,4vw,48px)" }} className="card-left">
+                        <div style={{ padding: "clamp(16px,2.6vw,26px) clamp(18px,3.4vw,40px)" }} className="card-left">
 
                             {/* Eyebrow */}
-                            <div className="flex items-center gap-2 mb-5"
+                            <div className="flex items-center gap-2 mb-3"
                                 style={{ opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.2s" }}>
                                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px rgba(34,197,94,0.9)" }} />
                                 <span style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(34,197,94,0.7)", letterSpacing: 3 }}>
@@ -913,7 +913,7 @@ function MaterializeCard({ show }: { show: boolean }) {
 
                             {/* Nome */}
                             <h2 style={{
-                                fontSize: "clamp(2.4rem,5.8vw,3.6rem)", fontWeight: 900, lineHeight: 1, marginBottom: 6, letterSpacing: -1,
+                                fontSize: "clamp(1.9rem,4.6vw,2.7rem)", fontWeight: 900, lineHeight: 1, marginBottom: 5, letterSpacing: -1,
                                 opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s",
                                 transform: fullyVisible ? "none" : "translateY(10px)",
                             }}>
@@ -927,22 +927,22 @@ function MaterializeCard({ show }: { show: boolean }) {
                             {/* Conceito em destaque */}
                             <div style={{
                                 fontFamily: "monospace", fontSize: 12, color: "rgba(6,182,212,0.55)",
-                                letterSpacing: 1, marginBottom: 20,
+                                letterSpacing: 1, marginBottom: 14,
                                 opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.4s",
                             }}>
                                 // Front + Batista — uma marca, uma missão
                             </div>
 
-                            <div style={{ height: 1, background: "linear-gradient(90deg,rgba(34,197,94,0.4),transparent)", marginBottom: 22 }} />
+                            <div style={{ height: 1, background: "linear-gradient(90deg,rgba(34,197,94,0.4),transparent)", marginBottom: 14 }} />
 
                             {/* Manifesto */}
                             <div style={{ opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.5s" }}>
-                                <p style={{ color: "rgba(220,240,220,0.88)", fontSize: 14, lineHeight: 1.9, marginBottom: 14 }}>
+                                <p style={{ color: "rgba(220,240,220,0.88)", fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
                                     O Frontista nasceu da fusão do meu sobrenome com o que eu faço:{" "}
                                     <span style={{ color: "rgba(34,197,94,0.9)", fontWeight: 700 }}>desenvolvimento Front-end</span>.
                                     Mais do que um nome, é um compromisso de tornar o aprendizado de programação acessível, criativo e sem frescura.
                                 </p>
-                                <p style={{ color: "rgba(180,210,190,0.65)", fontSize: 13, lineHeight: 1.85, marginBottom: 22 }}>
+                                <p style={{ color: "rgba(180,210,190,0.65)", fontSize: 12, lineHeight: 1.6, marginBottom: 14 }}>
                                     Aqui eu documento minha evolução em tempo real, compartilho o que aprendo e produzo conteúdo pensado para quem está começando —
                                     porque programação não precisa ser difícil de entender, só precisa ser bem explicada.
                                 </p>
@@ -950,12 +950,12 @@ function MaterializeCard({ show }: { show: boolean }) {
 
                             {/* 4 pilares */}
                             <div style={{
-                                display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
+                                display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6,
                                 opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.65s",
                             }}>
                                 {PILLARS.map(p => (
                                     <div key={p.id} style={{
-                                        padding: "11px 14px",
+                                        padding: "8px 12px",
                                         background: "rgba(34,197,94,0.04)",
                                         border: "1px solid rgba(34,197,94,0.13)",
                                         position: "relative",
@@ -965,15 +965,15 @@ function MaterializeCard({ show }: { show: boolean }) {
                                             fontFamily: "monospace", fontSize: 8,
                                             color: "rgba(6,182,212,0.25)", letterSpacing: 1,
                                         }}>{p.id}</span>
-                                        <span style={{ display: "block", fontFamily: "monospace", fontSize: 8, color: "rgba(34,197,94,0.4)", letterSpacing: 2, marginBottom: 4 }}>
+                                        <span style={{ display: "block", fontFamily: "monospace", fontSize: 8, color: "rgba(34,197,94,0.4)", letterSpacing: 2, marginBottom: 3 }}>
                                             {p.label}
                                         </span>
                                         <span style={{
-                                            display: "block", fontFamily: "monospace", fontWeight: 800, fontSize: 13,
+                                            display: "block", fontFamily: "monospace", fontWeight: 800, fontSize: 12,
                                             background: "linear-gradient(135deg,#22c55e,#06b6d4)",
                                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                                         }}>{p.value}</span>
-                                        <span style={{ display: "block", fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.22)", marginTop: 2 }}>
+                                        <span style={{ display: "block", fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.22)", marginTop: 1 }}>
                                             {p.sub}
                                         </span>
                                     </div>
@@ -983,21 +983,21 @@ function MaterializeCard({ show }: { show: boolean }) {
 
                         {/* ── DIREITA — Missão + CTAs ── */}
                         <div style={{
-                            padding: "clamp(24px,4vw,44px) clamp(20px,4vw,48px)",
-                            display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 28,
+                            padding: "clamp(16px,2.6vw,26px) clamp(18px,3.4vw,40px)",
+                            display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 16,
                         }}>
                             {/* Terminal de missão */}
                             <div style={{ opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.4s" }}>
-                                <p style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.18)", letterSpacing: 2, margin: "0 0 10px 0" }}>
+                                <p style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.18)", letterSpacing: 2, margin: "0 0 8px 0" }}>
                                     // MISSÃO
                                 </p>
                                 <div style={{
-                                    padding: "16px 18px",
+                                    padding: "12px 14px",
                                     background: "rgba(0,8,4,0.75)",
                                     border: "1px solid rgba(34,197,94,0.1)",
-                                    marginBottom: 20,
+                                    marginBottom: 12,
                                 }}>
-                                    <p style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.22)", letterSpacing: 0.5, lineHeight: 2, margin: 0 }}>
+                                    <p style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.22)", letterSpacing: 0.5, lineHeight: 1.7, margin: 0 }}>
                                         &gt; furar a bolha da comunidade tech<br />
                                         &gt; levar código para quem não veio da área<br />
                                         &gt; despertar curiosidade pela programação<br />
@@ -1008,7 +1008,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                 </div>
 
                                 {/* Barra de sinal decorativa */}
-                                <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 6 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
                                     {[3, 5, 7, 9, 11, 13, 11, 9, 7, 5, 3].map((h, i) => (
                                         <div key={i} style={{
                                             width: 4, height: h * 2.2,
@@ -1024,7 +1024,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                             </div>
 
                             {/* CTAs — TikTok e Instagram */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: 10,
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8,
                                 opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.7s" }}>
                                 <p style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.18)", letterSpacing: 2, margin: "0 0 4px 0" }}>
                                     // SINTONIZE O CANAL
@@ -1035,7 +1035,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                     className="group"
                                     style={{
                                         display: "flex", alignItems: "center", gap: 14,
-                                        padding: "15px 18px",
+                                        padding: "11px 14px",
                                         border: "1px solid rgba(6,182,212,0.25)",
                                         background: "rgba(6,182,212,0.04)",
                                         color: "rgba(200,240,220,0.75)",
@@ -1080,7 +1080,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                 <a href="https://instagram.com/ofrontista" target="_blank" rel="noopener noreferrer"
                                     style={{
                                         display: "flex", alignItems: "center", gap: 14,
-                                        padding: "15px 18px",
+                                        padding: "11px 14px",
                                         border: "1px solid rgba(225,48,108,0.25)",
                                         background: "rgba(225,48,108,0.04)",
                                         color: "rgba(200,240,220,0.75)",

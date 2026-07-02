@@ -14,6 +14,7 @@ function BackToTop() {
     }, []);
 
     const handleClick = () => {
+        window.dispatchEvent(new Event("warp"));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
