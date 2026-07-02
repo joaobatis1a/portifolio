@@ -40,7 +40,7 @@ function ContactCard({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="contact-card group relative flex flex-col gap-4 rounded-2xl p-6 text-left"
+            className="contact-card group relative flex flex-col gap-4 rounded-2xl p-7 text-left"
             style={{
                 background: "rgba(255,255,255,0.02)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -52,14 +52,14 @@ function ContactCard({
             />
 
             <div
-                className="relative flex h-11 w-11 items-center justify-center rounded-xl"
+                className="relative flex h-12 w-12 items-center justify-center rounded-xl"
                 style={{ background: accents.iconBg }}
             >
                 <span className={accents.text}>{icon}</span>
             </div>
 
-            <div className="relative flex flex-col gap-1">
-                <h3 className="text-base font-semibold text-white">{title}</h3>
+            <div className="relative flex flex-col gap-1.5">
+                <h3 className="text-lg font-semibold text-white">{title}</h3>
                 <p className="text-sm leading-relaxed text-zinc-400">{desc}</p>
             </div>
 
@@ -80,12 +80,67 @@ function ContactCard({
     );
 }
 
+/* ══ CARD DE E-MAIL (destaque principal) ══ */
+function FeaturedEmailCard({ href }: { href: string }) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="featured-card group relative flex flex-col items-start gap-5 overflow-hidden rounded-3xl p-8 text-left sm:col-span-2 sm:flex-row sm:items-center sm:gap-8 sm:p-10"
+            style={{
+                background: "linear-gradient(135deg, rgba(52,211,153,0.08), rgba(34,211,238,0.06))",
+                border: "1px solid rgba(52,211,153,0.3)",
+            }}
+        >
+            <span
+                className="featured-card-glow absolute inset-0 pointer-events-none opacity-0"
+                style={{ background: `radial-gradient(220px circle at var(--mx,50%) var(--my,0%), rgba(52,211,153,0.18), transparent 70%)` }}
+            />
+
+            <div
+                className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl"
+                style={{ background: "rgba(52,211,153,0.14)" }}
+            >
+                <svg className="h-7 w-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+
+            <div className="relative flex flex-1 flex-col gap-2">
+                <span className="text-xs font-medium uppercase tracking-widest text-emerald-400/70">
+                    Canal principal
+                </span>
+                <h3 className="text-2xl font-bold text-white">E-mail</h3>
+                <p className="text-sm leading-relaxed text-zinc-300 sm:max-w-md">
+                    A forma mais rápida de falar comigo — orçamentos, dúvidas ou oportunidades. Respondo em até 24h.
+                </p>
+            </div>
+
+            <span
+                className="featured-card-cta relative mt-2 inline-flex shrink-0 items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black sm:mt-0"
+                style={{ background: "linear-gradient(135deg, #34d399, #22d3ee)" }}
+            >
+                <span className="relative z-10">Enviar e-mail</span>
+                <svg
+                    className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </span>
+        </a>
+    );
+}
+
 /* ══ SEÇÃO DE CONTATO ══ */
 function Contact() {
     const emailHref = "https://mail.google.com/mail/?view=cm&to=profissionalba1is1a@gmail.com";
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const cards = e.currentTarget.querySelectorAll<HTMLElement>(".contact-card");
+        const cards = e.currentTarget.querySelectorAll<HTMLElement>(".contact-card, .featured-card");
         cards.forEach((card) => {
             const rect = card.getBoundingClientRect();
             card.style.setProperty("--mx", `${e.clientX - rect.left}px`);
@@ -119,18 +174,19 @@ function Contact() {
                 </h2>
 
                 <p className="mx-auto mt-6 max-w-xl text-sm md:text-base leading-relaxed text-zinc-400">
-                    Além de compartilhar minha trajetória como desenvolvedor e criador de conteúdo,
-                    também desenvolvo <span className="text-zinc-200">sites, landing pages e soluções web sob orçamento</span>.
-                    Se você quer contratar um serviço, tirar uma dúvida, trocar uma ideia sobre tecnologia
-                    ou propor uma oportunidade, este é o lugar certo — toda mensagem tem resposta.
+                    Estou aberto a oportunidades e networking, e também desenvolvo{" "}
+                    <span className="text-zinc-200">sites e soluções web sob orçamento</span>.
+                    Toda mensagem tem resposta.
                 </p>
             </div>
 
             {/* Cards de contato */}
             <div
                 onMouseMove={handleMouseMove}
-                className="relative z-10 mt-14 grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3"
+                className="relative z-10 mt-14 grid w-full max-w-3xl grid-cols-1 gap-5 sm:grid-cols-2"
             >
+                <FeaturedEmailCard href={emailHref} />
+
                 <ContactCard
                     accent="emerald"
                     href="https://github.com/joaobatis1a"
@@ -155,41 +211,11 @@ function Contact() {
                         </svg>
                     }
                 />
-                <ContactCard
-                    accent="violet"
-                    href={emailHref}
-                    title="E-mail"
-                    desc="Fale diretamente comigo sobre orçamentos, dúvidas ou propostas."
-                    cta="Enviar e-mail"
-                    icon={
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                    }
-                />
             </div>
 
-            {/* CTA principal */}
-            <div className="relative z-10 mt-14 flex flex-col items-center gap-3">
-                <a
-                    href={emailHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="contact-cta cursor-pointer flex items-center justify-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-black shadow-lg shadow-cyan-500/20"
-                    style={{
-                        background: "linear-gradient(135deg, #34d399, #22d3ee)",
-                        position: "relative",
-                        overflow: "hidden",
-                    }}
-                >
-                    <span className="contact-cta-shimmer" />
-                    <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.06 0-2.077-.163-3.02-.465L3 21l1.5-4.5C3.55 15.28 3 13.696 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    <span className="relative z-10">Vamos conversar</span>
-                </a>
-                <p className="text-xs text-zinc-500">Respondo por e-mail, geralmente em até 24h.</p>
-            </div>
+            <p className="relative z-10 mt-8 text-xs text-zinc-500">
+                Respondo por e-mail, geralmente em até 24h.
+            </p>
 
             <style>{`
                 .contact-card {
@@ -205,23 +231,17 @@ function Contact() {
                     transition: opacity 0.3s ease;
                 }
 
-                .contact-cta-shimmer {
-                    position: absolute; inset: 0;
-                    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%);
-                    transform: translateX(-100%);
-                    z-index: 1;
+                .featured-card {
+                    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
                 }
-                .contact-cta:hover .contact-cta-shimmer {
-                    animation: contactShimmer 0.55s ease forwards;
+                .featured-card:hover {
+                    transform: translateY(-3px);
+                    border-color: rgba(52,211,153,0.55) !important;
+                    box-shadow: 0 0 32px rgba(52,211,153,0.16), 0 4px 24px rgba(0,0,0,0.25);
                 }
-                .contact-cta:hover {
-                    transform: scale(1.04);
-                    transition: transform 0.2s ease;
-                    box-shadow: 0 0 28px rgba(34,211,238,0.45), 0 4px 20px rgba(0,0,0,0.3);
-                }
-                @keyframes contactShimmer {
-                    from { transform: translateX(-100%); }
-                    to   { transform: translateX(200%); }
+                .featured-card:hover .featured-card-glow {
+                    opacity: 1;
+                    transition: opacity 0.3s ease;
                 }
             `}</style>
         </section>
