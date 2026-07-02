@@ -93,11 +93,8 @@ function Stamp({ active }: { active: boolean }) {
 
   useEffect(() => {
     if (!active) return;
-    // 1. impacto imediato
     setPhase("impact");
-    // 2. bounce leve
     const t1 = setTimeout(() => setPhase("bounce"), 80);
-    // 3. assentar
     const t2 = setTimeout(() => setPhase("settle"), 220);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [active]);
@@ -108,11 +105,9 @@ function Stamp({ active }: { active: boolean }) {
     bounce:  "rotate(-12deg) scale(0.97)",
     settle:  "rotate(-12deg) scale(1)",
   };
-
   const opacities: Record<typeof phase, number> = {
     hidden: 0, impact: 1, bounce: 1, settle: 1,
   };
-
   const durations: Record<typeof phase, string> = {
     hidden:  "0s",
     impact:  "0.07s",
@@ -123,32 +118,32 @@ function Stamp({ active }: { active: boolean }) {
   return (
     <div style={{
       position: "absolute",
-      top: "38%", right: -16,
+      top: "34%", right: 14,
       transformOrigin: "center",
       transform: transforms[phase],
       opacity: opacities[phase],
       transition: `transform ${durations[phase]}, opacity ${phase === "hidden" ? "0s" : "0.06s"}`,
       pointerEvents: "none",
-      zIndex: 20,
+      zIndex: 30,
     }}>
       {/* Halo de impacto — flash que some */}
       {phase === "impact" && (
         <div style={{
-          position: "absolute", inset: -18, borderRadius: 2,
-          background: "radial-gradient(ellipse, rgba(34,197,94,0.35) 0%, transparent 70%)",
+          position: "absolute", inset: -22, borderRadius: 2,
+          background: "radial-gradient(ellipse, rgba(34,197,94,0.4) 0%, transparent 70%)",
           animation: "stampFlash 0.3s ease forwards",
         }} />
       )}
 
       {/* O carimbo em si */}
       <div style={{
-        border: "3px solid rgba(34,197,94,0.75)",
-        padding: "8px 16px",
+        border: "3px solid rgba(34,197,94,0.85)",
+        padding: "10px 18px",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-        background: "rgba(2,8,4,0.97)",
+        background: "rgba(2,8,4,0.98)",
         boxShadow: phase === "impact"
-          ? "0 0 0 4px rgba(34,197,94,0.2), 0 0 30px rgba(34,197,94,0.4)"
-          : "0 0 0 1px rgba(34,197,94,0.12), 0 0 16px rgba(34,197,94,0.15)",
+          ? "0 0 0 4px rgba(34,197,94,0.25), 0 0 36px rgba(34,197,94,0.5)"
+          : "0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2)",
         transition: "box-shadow 0.3s ease",
         position: "relative",
         overflow: "hidden",
@@ -180,6 +175,7 @@ function Stamp({ active }: { active: boolean }) {
   );
 }
 
+
 /* ══ SEÇÃO PRINCIPAL ══ */
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -187,6 +183,7 @@ export default function Experience() {
   const [inView,   setInView]   = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [stamped,  setStamped]  = useState(false);
+  const [shake,    setShake]    = useState(false);
   const [scanLine, setScanLine] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -212,7 +209,7 @@ export default function Experience() {
       if (prog < 100) { raf = requestAnimationFrame(tick); }
       else {
         setTimeout(() => setRevealed(true), 150);
-        setTimeout(() => setStamped(true),  2200);
+        setTimeout(() => { setStamped(true); setShake(true); setTimeout(() => setShake(false), 300); }, 2200);
       }
     };
     raf = requestAnimationFrame(tick);
@@ -297,6 +294,7 @@ export default function Experience() {
               borderRadius: 16,
               position: "relative", overflow: "hidden",
               transform: `perspective(1100px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              animation: shake ? "cardShake 0.3s ease" : "none",
               transition: "transform 0.05s linear",
               boxShadow: "0 0 60px rgba(34,197,94,0.08), 0 0 100px rgba(6,182,212,0.04)",
             }}
@@ -440,6 +438,14 @@ export default function Experience() {
       <style>{`
         @keyframes expPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
         @keyframes stampFlash { 0%{opacity:1} 100%{opacity:0} }
+        @keyframes cardShake {
+          0%   { translate: 0 0; }
+          20%  { translate: -3px 1px; }
+          40%  { translate: 3px -1px; }
+          60%  { translate: -2px 1px; }
+          80%  { translate: 2px 0; }
+          100% { translate: 0 0; }
+        }
       `}</style>
     </section>
   );
