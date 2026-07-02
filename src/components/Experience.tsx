@@ -183,10 +183,12 @@ function Stamp({ active }: { active: boolean }) {
 /* ══ SEÇÃO PRINCIPAL ══ */
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
+  const cardRef    = useRef<HTMLDivElement>(null);
   const [inView,   setInView]   = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [stamped,  setStamped]  = useState(false);
   const [scanLine, setScanLine] = useState(0);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -216,6 +218,31 @@ export default function Experience() {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [inView]);
+
+  /* Tilt do card no mouse — spring suavizado via lerp inline */
+  const tiltTarget  = useRef({ x: 0, y: 0 });
+  const tiltCurrent = useRef({ x: 0, y: 0 });
+  useEffect(() => {
+    let id: number;
+    const tick = () => {
+      tiltCurrent.current.x += (tiltTarget.current.x - tiltCurrent.current.x) * 0.1;
+      tiltCurrent.current.y += (tiltTarget.current.y - tiltCurrent.current.y) * 0.1;
+      setTilt({ x: tiltCurrent.current.x, y: tiltCurrent.current.y });
+      id = requestAnimationFrame(tick);
+    };
+    id = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const onCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current; if (!card) return;
+    const rect = card.getBoundingClientRect();
+    tiltTarget.current = {
+      x: ((e.clientY - rect.top) / rect.height - 0.5) * 7,
+      y: ((e.clientX - rect.left) / rect.width - 0.5) * 7,
+    };
+  };
+  const onCardMouseLeave = () => { tiltTarget.current = { x: 0, y: 0 }; };
 
   const dur  = tempoDesde(2025, 11);
   const CAPS = [
@@ -260,12 +287,20 @@ export default function Experience() {
           transition: "all 0.6s ease 0.2s",
           position: "relative",
         }}>
-          <div style={{
-            background: "rgba(2,8,4,0.97)",
-            border: "1px solid rgba(34,197,94,0.18)",
-            borderRadius: 16,
-            position: "relative", overflow: "hidden",
-          }}>
+          <div
+            ref={cardRef}
+            onMouseMove={onCardMouseMove}
+            onMouseLeave={onCardMouseLeave}
+            style={{
+              background: "rgba(2,8,4,0.97)",
+              border: "1px solid rgba(34,197,94,0.18)",
+              borderRadius: 16,
+              position: "relative", overflow: "hidden",
+              transform: `perspective(1100px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              transition: "transform 0.05s linear",
+              boxShadow: "0 0 60px rgba(34,197,94,0.08), 0 0 100px rgba(6,182,212,0.04)",
+            }}
+          >
             {/* Scanlines */}
             <div style={{
               position: "absolute", inset: 0, pointerEvents: "none",
