@@ -715,21 +715,6 @@ export default function Training() {
               </div>
             ))}
           </div>
-
-          {/* Nota de escalabilidade */}
-          <div style={{
-            marginTop: 20, padding: "10px 16px",
-            border: "1px solid rgba(34,197,94,0.1)",
-            background: "rgba(34,197,94,0.03)",
-            display: "flex", alignItems: "center", gap: 10,
-          }}>
-            <span style={{ fontSize: 14 }}>📌</span>
-            <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 1 }}>
-              Para adicionar novos certificados, edite o array{" "}
-              <code style={{ color: "rgba(34,197,94,0.5)" }}>CERTIFICATES</code>{" "}
-              no topo do arquivo — o layout se ajusta automaticamente.
-            </span>
-          </div>
         </div>
       </div>
 

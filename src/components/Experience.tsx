@@ -120,9 +120,6 @@ function Stamp({ active }: { active: boolean }) {
       position: "absolute",
       top: "34%", right: 14,
       transformOrigin: "center",
-      transform: transforms[phase],
-      opacity: opacities[phase],
-      transition: `transform ${durations[phase]}, opacity ${phase === "hidden" ? "0s" : "0.06s"}`,
       pointerEvents: "none",
       zIndex: 30,
     }}>
@@ -137,6 +134,9 @@ function Stamp({ active }: { active: boolean }) {
 
       {/* O carimbo em si */}
       <div style={{
+        transform: transforms[phase],
+        opacity: opacities[phase],
+        transition: `transform ${durations[phase]}, opacity ${phase === "hidden" ? "0s" : "0.06s"}, box-shadow 0.3s ease`,
         border: "3px solid rgba(34,197,94,0.85)",
         padding: "10px 18px",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
@@ -144,7 +144,6 @@ function Stamp({ active }: { active: boolean }) {
         boxShadow: phase === "impact"
           ? "0 0 0 4px rgba(34,197,94,0.25), 0 0 36px rgba(34,197,94,0.5)"
           : "0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2)",
-        transition: "box-shadow 0.3s ease",
         position: "relative",
         overflow: "hidden",
       }}>
@@ -232,8 +231,8 @@ export default function Experience() {
   }, []);
 
   const onCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current; if (!card) return;
-    const rect = card.getBoundingClientRect();
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
     tiltTarget.current = {
       x: ((e.clientY - rect.top) / rect.height - 0.5) * 7,
       y: ((e.clientX - rect.left) / rect.width - 0.5) * 7,
@@ -284,18 +283,25 @@ export default function Experience() {
           transition: "all 0.6s ease 0.2s",
           position: "relative",
         }}>
+          {/* Wrapper único de tilt: card e carimbo giram juntos, no mesmo espaço 3D */}
           <div
-            ref={cardRef}
             onMouseMove={onCardMouseMove}
             onMouseLeave={onCardMouseLeave}
+            style={{
+              position: "relative",
+              transform: `perspective(1100px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              transition: "transform 0.05s linear",
+              transformStyle: "preserve-3d",
+              animation: shake ? "cardShake 0.3s ease" : "none",
+            }}
+          >
+          <div
+            ref={cardRef}
             style={{
               background: "rgba(2,8,4,0.97)",
               border: "1px solid rgba(34,197,94,0.18)",
               borderRadius: 16,
               position: "relative", overflow: "hidden",
-              transform: `perspective(1100px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-              animation: shake ? "cardShake 0.3s ease" : "none",
-              transition: "transform 0.05s linear",
               boxShadow: "0 0 60px rgba(34,197,94,0.08), 0 0 100px rgba(6,182,212,0.04)",
             }}
           >
@@ -432,6 +438,7 @@ export default function Experience() {
 
           {/* ── CARIMBO ── */}
           <Stamp active={stamped} />
+          </div>
         </div>
       </div>
 
