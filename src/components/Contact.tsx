@@ -213,10 +213,6 @@ function Contact() {
                 />
             </div>
 
-            <p className="relative z-10 mt-8 text-xs text-zinc-500">
-                Respondo por e-mail, geralmente em até 24h.
-            </p>
-
             <style>{`
                 .contact-card {
                     transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
