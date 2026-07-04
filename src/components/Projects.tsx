@@ -35,7 +35,7 @@ const UNLOCKED = [
     role: "Líder de Front-end & Scrum Master",
     stack: ["HTML", "CSS", "JavaScript", "Java", "MongoDB"],
     github: "https://github.com/joaobatis1a/benevo",
-    demo: "#",
+    demo: "https://benevo-demo.vercel.app/",
     trailer: null,
     award: "🥈 2º Lugar",
     mx: 420, my: 275,
