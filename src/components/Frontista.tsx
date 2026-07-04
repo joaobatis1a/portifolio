@@ -1077,7 +1077,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                 </a>
 
                                 {/* Instagram */}
-                                <a href="https://instagram.com/ofrontista" target="_blank" rel="noopener noreferrer"
+                                <a href="https://instagram.com/frontista" target="_blank" rel="noopener noreferrer"
                                     style={{
                                         display: "flex", alignItems: "center", gap: 14,
                                         padding: "11px 14px",

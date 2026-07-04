@@ -153,7 +153,7 @@ function Footer() {
                                 }
                             />
                             <SocialIcon
-                                href="https://instagram.com/joaobatis1a"
+                                href="https://instagram.com/frontista"
                                 label="Instagram"
                                 icon={
                                     <svg className="h-[18px] w-[18px]" fill="currentColor" viewBox="0 0 24 24">
@@ -162,7 +162,7 @@ function Footer() {
                                 }
                             />
                             <SocialIcon
-                                href="https://tiktok.com/@joaobatis1a"
+                                href="https://tiktok.com/@frontista"
                                 label="TikTok"
                                 icon={
                                     <svg className="h-[18px] w-[18px]" fill="currentColor" viewBox="0 0 24 24">
