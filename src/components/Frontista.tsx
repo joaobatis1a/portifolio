@@ -33,7 +33,7 @@ function StaticCanvas({ opacity = 0.04 }: { opacity?: number }) {
 function TacticalBackground({ phase }: { phase: string }) {
     const ref = useRef<HTMLCanvasElement>(null);
     const alphaRef = useRef(0);
-    const rafRef = useRef<number>();
+    const rafRef = useRef<number | undefined>(undefined);
 
     useEffect(() => {
         const canvas = ref.current; if (!canvas) return;
@@ -751,7 +751,7 @@ function MaterializeCard({ show }: { show: boolean }) {
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const cardRef = useRef<HTMLDivElement>(null);
     const [floatY, setFloatY] = useState(0);
-    const rafRef = useRef<number>();
+    const rafRef = useRef<number | undefined>(undefined);
     const [blink, setBlink] = useState(true);
     const [time, setTime] = useState(new Date());
     const [glitchActive, setGlitchActive] = useState(false);
