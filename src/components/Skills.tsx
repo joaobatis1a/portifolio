@@ -219,9 +219,6 @@ function Skills() {
         setCurrent(next);
     }, [current]);
 
-    const next = () => { goTo(current + 1); setPaused(true); setTimeout(() => setPaused(false), 8000); };
-    const prev = () => { goTo(current - 1); setPaused(true); setTimeout(() => setPaused(false), 8000); };
-
     // Auto-advance
     useEffect(() => {
         if (paused) return;

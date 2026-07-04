@@ -11,7 +11,7 @@ const UNLOCKED = [
     role: "Desenvolvedor de Gameplay & Integração Visual",
     stack: ["Python", "Pygame"],
     github: "https://github.com/joaobatis1a/limpattack",
-    demo: "#",
+    demo: "https://limpattack.vercel.app/",
     trailer: "/trailer_limpattack.mp4",
     award: "🏆 1º Lugar",
     mx: 210, my: 210,
@@ -109,6 +109,9 @@ const LOCKED = [
   },
 ];
 
+type UnlockedProject = typeof UNLOCKED[number];
+type LockedProject = typeof LOCKED[number];
+
 const ISLAND_PATH = `
   M 110 330
   C  75 280,  65 220,  95 175
@@ -133,7 +136,7 @@ const ISLAND_PATH = `
 // Limpattack: pixel fox walks across the card
 function LimpattackEffect() {
   const [t, setT] = useState(0);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
     let start: number;
     const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
@@ -242,7 +245,7 @@ function LimpattackEffect() {
 // Benevo: pixel art crates being stacked and organized in a warehouse
 function BenevoEffect() {
   const [t, setT] = useState(0);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
     let start: number;
     const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
@@ -259,12 +262,6 @@ function BenevoEffect() {
   const walkLeft = phase >= 0.5 && phase < 0.9;
   const placing = phase >= 0.9;
   const carrying = walkLeft || placing;
-
-  const workerX = walkRight
-    ? 148 - (phase / 0.4) * 80
-    : walkLeft
-    ? 68 + ((phase - 0.5) / 0.4) * 80
-    : walkRight ? 148 : placing ? 148 : 68;
 
   const finalWorkerX = walkRight
     ? 148 - (phase / 0.4) * 80
@@ -392,7 +389,7 @@ function BenevoEffect() {
 // Ponte: clean pixel bridge — solid arch, no suspension cables, person walking across
 function PonteEffect() {
   const [t, setT] = useState(0);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
     let start: number;
     const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
@@ -773,7 +770,7 @@ function LockedHoverCard({ locked, svgX, svgY, svgW, svgH, visible }: {
 }) {
   const [glitch, setGlitch] = useState(false);
   const [scanPos, setScanPos] = useState(0);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (!visible) { setGlitch(false); return; }
@@ -854,7 +851,7 @@ function LockedPanel({ locked, onClose }: { locked: LockedProject; onClose: () =
   const [scanPos, setScanPos] = useState(0);
   const [glitch, setGlitch] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     requestAnimationFrame(() => setShow(true));
