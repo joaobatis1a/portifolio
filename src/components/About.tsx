@@ -168,7 +168,7 @@ function About() {
                             style={{ transition: "transform 0.15s ease-out", transformStyle: "preserve-3d", willChange: "transform" }}
                         >
                             <img
-                                src="/foto_perfil.jpg"
+                                src="/foto_perfil.jpeg"
                                 alt="João Batista"
                                 className="w-56 h-72 md:w-64 md:h-80 object-cover object-top rounded-2xl block"
                             />
