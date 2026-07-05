@@ -59,7 +59,7 @@ const UNLOCKED = [
     role: "Líder de Front-end & Scrum Master",
     stack: ["HTML", "CSS", "JavaScript", "Figma"],
     github: "https://github.com/joaobatis1a/ponte",
-    demo: "#",
+    demo: "https://ponte-demo.vercel.app/",
     trailer: null,
     award: "🏆 1º Lugar",
     mx: 600, my: 215,
